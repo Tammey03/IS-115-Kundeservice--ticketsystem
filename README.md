@@ -21,6 +21,7 @@ Dere oppfordres til å tenkte på:
 - sikkerhet
 - videreutvikling og vedlikehold
 - samarbeid og arbeidsflyt i team
+
 Dere står fritt til å velge struktur, design g hvilken funksjner dere ønsker å prioritere.
 Dere må selv vurdere hvilke behve brukeren har, og hvordan systemet bør bygges for å gi en god brukeropplevelse
 Prosjekt skal vise at dere kan planlegge, utvikle og dokumentere en webapplikasjon.
