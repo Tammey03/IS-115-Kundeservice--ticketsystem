@@ -19,6 +19,8 @@
     <main>
         <h1>Mine saker bruker</h1>
         <p>Her kan du se dine egne saker og deres status.</p>
+
+        Tilbake til hovedsiden for admin: <a href="mainUser.php">Hovedside</a>
     </main>
 
     <footer>

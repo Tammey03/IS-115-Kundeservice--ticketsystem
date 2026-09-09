@@ -19,8 +19,7 @@
     <main>
         <h1>Alle saker admin</h1>
 
-<a href="pages/bruker/mainUser.php" class="button">Gå til bruker-side</a>
-<a href="pages/admin/mainAdmin.php" class="button">Gå til admin-side</
+Tilbake til hovedsiden for admin: <a href="mainAdmin.php">Hovedside</a>
     </main>
 
     <footer>

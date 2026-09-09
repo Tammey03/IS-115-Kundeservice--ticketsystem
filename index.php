@@ -28,12 +28,10 @@
         - Svar på saker
         - Vise historikk og status over saker (f.eks nav, studentbolig)
         - prioritering av saker (f.eks lav, middels, høy)
-
-
     </p>
 
-
-    </main>
+<p> Trykk på lenken neden for å logge inn som bruker eller admin. Denne er siden er kunne for beskrivelse av prosjektet og funksjonalitet i første sprint.  </p>
+<p> Logg inn som bruker: <a href="pages/login.php">Logg inn</a></p>
 
     <footer>
         <!-- Footer kommer her -->

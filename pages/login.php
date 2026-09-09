@@ -26,6 +26,9 @@
         <input type="submit" value="Logg inn">
       </form>
     </main>
+    <p>Lager bare en enkel login for å teste systemet. Ingen sikkerhet implementert.</p>
+    <p>Bruker <a href="bruker/mainUser.php">mainUser.php</a> for å teste brukerfunksjonalitet.</p>
+    <p>Admin-side: <a href="admin/mainAdmin.php">mainAdmin.php</a></p>
 
     <footer>
         <!-- Footer kommer her -->

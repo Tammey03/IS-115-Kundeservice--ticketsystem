@@ -19,7 +19,8 @@
     <main>
         <h1>Min profil Bruker</h1>
     </main>
-
+ Tilbake til hovedsiden for admin: <a href="mainUser.php">Hovedside</a>
+    </main>
     <footer>
         <!-- Footer kommer her -->
     </footer>

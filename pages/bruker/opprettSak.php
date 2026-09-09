@@ -18,6 +18,9 @@
 
     <main>
         <h1>Opprette ny sak bruker</h1>
+
+         Tilbake til hovedsiden for admin: <a href="mainUser.php">Hovedside</a>
+    </main>
 </main>
 
     <footer>

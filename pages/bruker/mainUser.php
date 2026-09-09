@@ -43,6 +43,8 @@
             <p>Her kan du chatte direkte med kundeservice for rask hjelp.</p>
             <a href="chat.php" class="button">Start chat</a>
 
+        </div>
+        Tilbake til hovedsiden for admin: <a href="mainUser.php">Hovedside</a>
     </main>
 
     <footer>
