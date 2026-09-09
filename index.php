@@ -18,7 +18,9 @@
 
     <main>
         <h1>Kundeservice</h1>
-        <!-- Innhold kommer her -->
+      <p>Velkommen til vår kundeservice-side! Her kan du finne svar på vanlige spørsmål, kontakte oss for hjelp, og få informasjon om våre tjenester.</p>
+        <p>I dette prosjektet skal dere utvikle et webbasert kundeservice- og ticketsystem hvor kunder kan sende inn henvendelser, mens annsatte kan behandle, prioritere og svare på sakene gjennon et administrasjonspanel. 
+        Systemet skal gi oversikt over status på saker, hvem som behandler dem, og historikk over kommunikasjon. </p>
     </main>
 
     <footer>
