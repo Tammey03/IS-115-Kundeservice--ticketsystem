@@ -7,7 +7,7 @@
 
     <title>Kundeservice</title>
 
-    <link rel="stylesheet" href="../../css/mainUser.css">
+    <link rel="stylesheet" href="../../css/style.css">
     <link rel="stylesheet" href="../../css/mineSaker.css">
 
 </head>
@@ -32,7 +32,10 @@
 
                 <a href="opprettSak.php">Opprett sak</a>
 
-                <a href="minProfil.php">Min profil</a>
+                <a href="minProfilUser.php">Min profil</a>
+                <a href="../login.php" class="logout-button">
+                    Logg ut
+                </a>
 
             </div>
 
@@ -151,7 +154,7 @@
         <!-- Footer kommer her -->
     </footer>
 
-    <script src="../../js/navBarUser.js"></script>
+    <script src="../../js/navBar.js"></script>
 </body>
 
 </html>

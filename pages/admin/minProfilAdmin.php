@@ -12,34 +12,32 @@
         bruker -> pages -> prosjektmappen
         Deretter går vi inn i css-mappen.
     -->
-    <link rel="stylesheet" href="../../css/mainUser.css">
+    <link rel="stylesheet" href="../../css/style.css">
     <link rel="stylesheet" href="../../css/minProfil.css">
 </head>
 
 <body>
 
-    <!-- =========================
-         NAVIGASJON
-         ========================= -->
-    <header class="header">
+   <header class="header">
 
         <nav class="navbar">
 
             <!-- Logo / navn på systemet -->
-            <a href="mainUser.php" class="logo">
+            <a href="mainAdmin.php" class="logo">
                 Kundeservice
             </a>
 
             <!-- Navigasjon mellom brukerens sider -->
             <div class="nav-links">
 
-                <a href="mainUser.php">Hjem</a>
+                <a href="mainAdmin.php">Hjem</a>
+                <a href="alleSaker.php">Alle saker</a>
+                  <a href="behandleSaker.php">Behandle saker</a>
+                <a href="minProfilAdmin.php">Min profil</a>
 
-                <a href="mineSaker.php">Mine saker</a>
-
-                <a href="opprettSak.php">Opprett sak</a>
-
-                <a href="minProfil.php">Min profil</a>
+                <a href="../login.php" class="logout-button">
+                    Logg ut
+                </a>
 
             </div>
 
@@ -125,7 +123,7 @@
         JavaScript ligger i js-mappen øverst i prosjektet.
         Derfor må vi gå to mapper tilbake.
     -->
-    <script src="../../js/navBarUser.js"></script>
+    <script src="../../js/navBar.js"></script>
     <script src="../../js/minprofil.js"></script>
 
 </body>

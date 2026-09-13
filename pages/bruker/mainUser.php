@@ -38,9 +38,9 @@
 
                 <a href="opprettSak.php">Opprett sak</a>
 
-                <a href="minProfil.php">Min profil</a>
+                <a href="minProfilUser.php">Min profil</a>
 
-                <a href="../../login.php" class="logout-button">
+                <a href="../login.php" class="logout-button">
                     Logg ut
                 </a>
 
@@ -116,7 +116,7 @@
                     profilinformasjonen din.
                 </p>
 
-                <a href="minProfil.php" class="button">
+                <a href="minProfilUser.php" class="button">
                     Se min profil
                 </a>
 
@@ -162,7 +162,7 @@
         JavaScript ligger i js-mappen øverst i prosjektet.
         Derfor må vi gå to mapper tilbake.
     -->
-    <script src="../../js/navBarUser.js"></script>
+    <script src="../../js/navBar.js"></script>
 
 </body>
 
