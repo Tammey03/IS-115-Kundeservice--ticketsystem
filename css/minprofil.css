@@ -1,0 +1,141 @@
+
+/* =========================
+   PROFILSIDE
+   ========================= */
+
+.profile-page {
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+
+
+/* Overskrift */
+.profile-title {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.profile-title h1 {
+    font-size: 2.3rem;
+    margin-bottom: 8px;
+}
+
+.profile-title p {
+    color: #666;
+}
+
+
+/* =========================
+   PROFILKORT
+   ========================= */
+
+.profile-card {
+    background-color: white;
+
+    border-radius: 12px;
+
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+
+    overflow: hidden;
+}
+
+
+/* Øverste del av profilkortet */
+.profile-header {
+    display: flex;
+    align-items: center;
+
+    gap: 20px;
+
+    padding: 30px;
+
+    background-color: #f5f8fb;
+
+    border-bottom: 1px solid #e5e5e5;
+}
+
+
+/* Midlertidig profilbilde */
+.profile-image {
+    width: 80px;
+    height: 80px;
+
+    border-radius: 50%;
+
+    background-color: #1769aa;
+
+    color: white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+
+/* Navnet ved siden av bildet */
+.profile-name h2 {
+    margin-bottom: 5px;
+}
+
+.profile-name p {
+    color: #777;
+}
+
+
+/* =========================
+   PROFILINFORMASJON
+   ========================= */
+
+.profile-information {
+    padding: 10px 30px 30px;
+}
+
+
+/* En rad med informasjon */
+.profile-row {
+    display: grid;
+
+    grid-template-columns: 200px 1fr;
+
+    padding: 18px 0;
+
+    border-bottom: 1px solid #eeeeee;
+}
+
+
+/* Venstre kolonne */
+.profile-label {
+    font-weight: bold;
+
+    color: #555;
+}
+
+
+/* Fjerner streken fra siste rad */
+.profile-row:last-child {
+    border-bottom: none;
+}
+
+
+/* =========================
+   MOBIL
+   ========================= */
+
+@media (max-width: 600px) {
+
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-row {
+        grid-template-columns: 1fr;
+
+        gap: 5px;
+    }
+
+}
