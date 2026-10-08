@@ -1,3 +1,55 @@
+<?php
+$errors = [];
+$success = false;
+
+$title = "";
+$category = "";
+$priority = "";
+$description = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    echo "PHP har mottatt skjemaet!";
+
+    // Henter informasjon fra skjemaet
+    $title = trim($_POST["title"] ?? "");
+    $category = $_POST["category"] ?? "";
+    $priority = $_POST["priority"] ?? "";
+    $description = trim($_POST["description"] ?? "");
+
+    // Validering av tittel
+    if (empty($title)) {
+        $errors[] = "Du må fylle ut en tittel.";
+    }
+
+    // Validering av kategori
+    $validCategories = ["Innlogging", "Betaling", "Teknisk problem", "Annet"];
+
+    if (!in_array($category, $validCategories, true)) {
+        $errors[] = "Du må velge en gyldig kategori.";
+    }
+
+    // Validering av beskrivelse
+    if (empty($description)) {
+        $errors[] = "Du må fylle ut en beskrivelse.";
+    }
+
+    // Validering av prioritet
+    if ($priority === "") {
+        $priority = "Normal";
+    }
+
+    if (!in_array($priority, ["Lav", "Normal", "Høy"], true)) {
+        $errors[] = "Ugyldig prioritet.";
+    }
+
+    // Kontroll av om alle feltene er gyldige
+    if (empty($errors)) {
+        $success = true;
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="no">
 
@@ -52,8 +104,20 @@
                 Fyll ut informasjonen under for å sende inn en ny henvendelse.
             </p>
         </div>
+<?php if (!empty($errors)): ?>
 
-        <form class="ticket-form">
+    <div class="ticket-errors">
+        <h3>Det oppstod noen feil:</h3>
+
+        <ul>
+            <?php foreach ($errors as $error): ?>
+                <li><?= htmlspecialchars($error) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+
+<?php endif; ?>
+        <form class="ticket-form" method="POST" action="opprettSak.php" enctype="multipart/form-data">
 
             <div class="form-group">
                 <label for="title">Tittel</label>
@@ -62,6 +126,7 @@
                     id="title"
                     name="title"
                     placeholder="Kort beskrivelse av problemet"
+                    required
                 >
             </div>
 
@@ -70,7 +135,7 @@
                 <div class="form-group">
                     <label for="category">Kategori</label>
 
-                    <select id="category" name="category">
+                    <select id="category" name="category" required>
                         <option value="">Velg kategori</option>
                         <option>Innlogging</option>
                         <option>Betaling</option>
@@ -100,6 +165,7 @@
                     name="description"
                     rows="7"
                     placeholder="Beskriv problemet så tydelig som mulig..."
+                    required
                 ></textarea>
             </div>
 
@@ -124,6 +190,29 @@
             </div>
 
         </form>
+        <?php if ($success): ?>
+
+    <div class="ticket-result">
+        <h2>Skjemaet er mottatt!</h2>
+
+        <p><strong>Tittel:</strong>
+            <?= htmlspecialchars($title) ?>
+        </p>
+
+        <p><strong>Kategori:</strong>
+            <?= htmlspecialchars($category) ?>
+        </p>
+
+        <p><strong>Prioritet:</strong>
+            <?= htmlspecialchars($priority) ?>
+        </p>
+
+        <p><strong>Beskrivelse:</strong>
+            <?= nl2br(htmlspecialchars($description)) ?>
+        </p>
+    </div>
+
+<?php endif; ?>
 
     </section>
 
