@@ -1,3 +1,8 @@
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Handle form submission
+}
+?>
 <!DOCTYPE html>
 <html lang="no">
 
@@ -53,7 +58,7 @@
             </p>
         </div>
 
-        <form class="ticket-form">
+        <form class="ticket-form" action="opprettSak.php" method="POST">
 
             <div class="form-group">
                 <label for="title">Tittel</label>
@@ -62,6 +67,7 @@
                     id="title"
                     name="title"
                     placeholder="Kort beskrivelse av problemet"
+                    required
                 >
             </div>
 
@@ -70,7 +76,7 @@
                 <div class="form-group">
                     <label for="category">Kategori</label>
 
-                    <select id="category" name="category">
+                    <select id="category" name="category" required>
                         <option value="">Velg kategori</option>
                         <option>Innlogging</option>
                         <option>Betaling</option>
@@ -82,7 +88,7 @@
                 <div class="form-group">
                     <label for="priority">Prioritet</label>
 
-                    <select id="priority" name="priority">
+                    <select id="priority" name="priority" required>
                         <option value="">Velg prioritet</option>
                         <option>Lav</option>
                         <option>Normal</option>
@@ -99,6 +105,7 @@
                     id="description"
                     name="description"
                     rows="7"
+                    required
                     placeholder="Beskriv problemet så tydelig som mulig..."
                 ></textarea>
             </div>

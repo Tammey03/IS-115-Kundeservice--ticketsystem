@@ -12,7 +12,7 @@
         bruker -> pages -> prosjektmappen
         Deretter går vi inn i css-mappen.
     -->
-    <link rel="stylesheet" href="../../css/mainUser.css">
+    <link rel="stylesheet" href="../../css/style.css">
 </head>
 
 <body>
@@ -63,6 +63,7 @@
             <p>
                 Opprett en ny sak eller få oversikt over
                 henvendelsene dine.
+               
             </p>
 
         </section>
