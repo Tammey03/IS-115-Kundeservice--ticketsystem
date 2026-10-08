@@ -7,26 +7,132 @@
 
     <title>Kundeservice</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/mineSaker.css">
 </head>
 
 <body>
     
-    <header>
-        <!-- Navigasjon kommer her -->
+    <!-- =========================
+         NAVIGASJON
+         ========================= -->
+    <header class="header">
+
+        <nav class="navbar">
+
+            <!-- Logo / navn på systemet -->
+            <a href="mainAdmin.php" class="logo">
+                Kundeservice
+            </a>
+
+            <!-- Navigasjon mellom brukerens sider -->
+            <div class="nav-links">
+
+                <a href="mainAdmin.php">Hjem</a>
+                <a href="alleSaker.php">Alle saker</a>
+                  <a href="behandleSaker.php">Behandle saker</a>
+                <a href="minProfilAdmin.php">Min profil</a>
+
+                <a href="../login.php" class="logout-button">
+                    Logg ut
+                </a>
+
+            </div>
+
+        </nav>
+
     </header>
 
     <main>
-        <h1>Alle saker admin</h1>
+        <!-- =========================
+             HOVEDINNHOLD
+             ========================= -->
+             <!-- Introduksjon -->
+        <section class="hero">
+            <h1>Velkommen til Kundeservice</h1>
+            <p>
+             Her kan du se alle sakkene som er sendt inn av brukere, og administrere dem etter behov. Du kan også oppdatere din egen profilinformasjon.
+            </p>
 
-Tilbake til hovedsiden for admin: <a href="mainAdmin.php">Hovedside</a>
-    </main>
+             <table class="saker-table">
 
+            <thead>
+                <tr>
+                    <th>Saksnummer</th>
+                    <th>Tittel</th>
+                    <th>Sendt inn</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <!-- Mock-data -->
+                <tr>
+                    <td>#1001</td>
+                    <td>Problem med innlogging</td>
+                    <td>10.09.2026</td>
+
+                    <td>
+                        <span class="status status-apen">
+                            Åpen
+                        </span>
+                    </td>
+
+                    <td>
+                        <a href="#" class="details-link">
+                            Se sak
+                        </a>
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <td>#1002</td>
+                    <td>Problem med betaling</td>
+                    <td>08.09.2026</td>
+
+                    <td>
+                        <span class="status status-behandles">
+                            Under behandling
+                        </span>
+                    </td>
+
+                    <td>
+                        <a href="#" class="details-link">
+                            Se sak
+                        </a>
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <td>#1003</td>
+                    <td>Endre kontaktinformasjon</td>
+                    <td>01.09.2026</td>
+
+                    <td>
+                        <span class="status status-lost">
+                            Løst
+                        </span>
+                    </td>
+
+                    <td>
+                        <a href="#" class="details-link">
+                            Se sak
+                        </a>
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
     <footer>
         <!-- Footer kommer her -->
     </footer>
 
-    <script src="js/script.js"></script>
+    <script src="../../js/navBar.js"></script>
 </body>
 
 </html>
