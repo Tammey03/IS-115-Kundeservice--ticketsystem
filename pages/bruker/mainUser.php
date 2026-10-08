@@ -12,7 +12,7 @@
         bruker -> pages -> prosjektmappen
         Deretter går vi inn i css-mappen.
     -->
-    <link rel="stylesheet" href="../../css/mainUser.css">
+    <link rel="stylesheet" href="../../css/style.css?v=20261008">
 </head>
 
 <body>
