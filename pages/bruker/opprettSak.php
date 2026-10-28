@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../classes/Sak.php';
+
 $errors = [];
 $success = false;
 
@@ -8,45 +10,23 @@ $priority = "";
 $description = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Oppretter en sak med informasjonen fra skjemaet.
+    $sak = new Sak(
+        $_POST["title"] ?? "",
+        $_POST["category"] ?? "",
+        $_POST["priority"] ?? "",
+        $_POST["description"] ?? ""
+    );
 
-    echo "PHP har mottatt skjemaet!";
+    // Klassen kontrollerer feltene og returnerer eventuelle feil.
+    $errors = $sak->valider();
+    $success = empty($errors);
 
-    // Henter informasjon fra skjemaet
-    $title = trim($_POST["title"] ?? "");
-    $category = $_POST["category"] ?? "";
-    $priority = $_POST["priority"] ?? "";
-    $description = trim($_POST["description"] ?? "");
-
-    // Validering av tittel
-    if (empty($title)) {
-        $errors[] = "Du må fylle ut en tittel.";
-    }
-
-    // Validering av kategori
-    $validCategories = ["Innlogging", "Betaling", "Teknisk problem", "Annet"];
-
-    if (!in_array($category, $validCategories, true)) {
-        $errors[] = "Du må velge en gyldig kategori.";
-    }
-
-    // Validering av beskrivelse
-    if (empty($description)) {
-        $errors[] = "Du må fylle ut en beskrivelse.";
-    }
-
-    // Validering av prioritet
-    if ($priority === "") {
-        $priority = "Normal";
-    }
-
-    if (!in_array($priority, ["Lav", "Normal", "Høy"], true)) {
-        $errors[] = "Ugyldig prioritet.";
-    }
-
-    // Kontroll av om alle feltene er gyldige
-    if (empty($errors)) {
-        $success = true;
-    }
+    // HTML-en nedenfor bruker disse variablene til å vise resultatet.
+    $title = $sak->title;
+    $category = $sak->category;
+    $priority = $sak->priority;
+    $description = $sak->description;
 }
 ?>
 
@@ -126,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     id="title"
                     name="title"
                     placeholder="Kort beskrivelse av problemet"
-                    required
+                
                 >
             </div>
 
@@ -135,7 +115,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div class="form-group">
                     <label for="category">Kategori</label>
 
-                    <select id="category" name="category" required>
+                    <select id="category" name="category" >
                         <option value="">Velg kategori</option>
                         <option>Innlogging</option>
                         <option>Betaling</option>
@@ -165,7 +145,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     name="description"
                     rows="7"
                     placeholder="Beskriv problemet så tydelig som mulig..."
-                    required
+              
                 ></textarea>
             </div>
 
