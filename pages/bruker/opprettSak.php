@@ -15,7 +15,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_POST["title"] ?? "",
         $_POST["category"] ?? "",
         $_POST["priority"] ?? "",
-        $_POST["description"] ?? ""
+        $_POST["description"] ?? "",
+        $_FILES["attachment"] ?? null
     );
 
     // Klassen kontrollerer feltene og returnerer eventuelle feil.
@@ -106,7 +107,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     id="title"
                     name="title"
                     placeholder="Kort beskrivelse av problemet"
-                
+                    maxlength="150"
+                   
                 >
             </div>
 
@@ -128,9 +130,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <label for="priority">Prioritet</label>
 
                     <select id="priority" name="priority">
-                        <option value="">Velg prioritet</option>
                         <option>Lav</option>
-                        <option>Normal</option>
+                        <option selected>Normal</option>
                         <option>Høy</option>
                     </select>
                 </div>
@@ -152,11 +153,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="form-group">
                 <label for="attachment">Vedlegg</label>
 
-                <input
-                    type="file"
-                    id="attachment"
-                    name="attachment"
-                >
+             
+                   <input
+                        type="file"
+                        id="attachment"
+                        name="attachment"
+                        accept=".pdf,.jpg,.jpeg,.png"
+
+                    >
             </div>
 
             <div class="form-actions">
@@ -190,6 +194,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <p><strong>Beskrivelse:</strong>
             <?= nl2br(htmlspecialchars($description)) ?>
         </p>
+        <?php if (
+            isset($_FILES['attachment']['error']) &&
+            $_FILES['attachment']['error'] === UPLOAD_ERR_OK
+             ): ?>
+            <p><strong>Vedlegg:</strong> Vedlegget er godkjent.</p>
+            <?php else: ?>
+            <p><strong>Vedlegg:</strong> Ingen fil valgt.</p>
+            <?php endif; ?>
     </div>
 
 <?php endif; ?>

@@ -6,14 +6,17 @@ class Sak
     public $priority;
     public $description;
     private $typeErrors = [];
+    private $attachment;
 
-    public function __construct($title, $category, $priority, $description)
+    public function __construct($title, $category, $priority, $description, $attachment = null)
     {
+        $this->attachment = $attachment;
         $fields = [
             'Tittel' => $title,
             'Kategori' => $category,
             'Prioritet' => $priority,
             'Beskrivelse' => $description
+
         ];
 
         foreach ($fields as $label => $value) {
@@ -37,14 +40,16 @@ class Sak
     public function valider()
     {
         if (!empty($this->typeErrors)) {
-            return $this->typeErrors;
+            return array_merge($this->typeErrors, $this->validerVedlegg());
         }
 
         $errors = [];
 
         if ($this->title === "") {
             $errors[] = "Du må fylle ut en tittel.";
-        }
+        }   elseif (mb_strlen($this->title, 'UTF-8') > 150) {
+            $errors[] = "Tittelen kan ikke være lengre enn 150 tegn.";
+}
 
         $validCategories = [
             "Innlogging",
@@ -65,7 +70,56 @@ class Sak
             $errors[] = "Ugyldig prioritet.";
         }
 
-        return $errors;
+        return array_merge($errors, $this->validerVedlegg());
+    }
+
+    private function validerVedlegg()
+    {
+        $file = $this->attachment;
+
+        // Vedlegg er valgfritt.
+        if ($file === null) {
+            return [];
+        }
+
+        if (!is_array($file) || !isset($file['error']) || !is_int($file['error'])) {
+            return ['Ugyldig vedlegg.'];
+        }
+
+        if ($file['error'] === UPLOAD_ERR_NO_FILE) {
+            return [];
+        }
+
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            return ['Vedlegget kunne ikke lastes opp.'];
+        }
+
+        $tmpName = $file['tmp_name'] ?? null;
+
+        if (!is_string($tmpName) || !is_uploaded_file($tmpName)) {
+            return ['Ugyldig opplastet fil.'];
+        }
+
+        $size = filesize($tmpName);
+        $maxSize = 5 * 1024 * 1024; // 5 MB
+
+        if ($size === false || $size === 0) {
+            return ['Vedlegget er tomt eller kunne ikke leses.'];
+        }
+
+        if ($size > $maxSize) {
+            return ['Vedlegget kan ikke være større enn 5 MB.'];
+        }
+
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($tmpName);
+        $allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+
+        if (!in_array($mimeType, $allowedTypes, true)) {
+            return ['Vedlegget må være PDF, JPG eller PNG.'];
+        }
+
+        return [];
     }
 }
 
