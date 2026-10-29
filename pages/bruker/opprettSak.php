@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../config/auth.php';
+requireRoles(['user']);
 require_once __DIR__ . '/../../classes/Sak.php';
 
 $errors = [];
@@ -9,7 +11,10 @@ $category = "";
 $priority = "";
 $description = "";
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"] ?? null)) {
+    http_response_code(403);
+    $errors[] = "Ugyldig skjema. Last siden på nytt og prøv igjen.";
+} elseif ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Oppretter en sak med informasjonen fra skjemaet.
     $sak = new Sak(
         $_POST["title"] ?? "",
@@ -75,6 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <?php endif; ?>
         <form class="ticket-form" method="POST" action="opprettSak.php" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
 
             <div class="form-group">
                 <label for="title">Tittel</label>
@@ -153,7 +159,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <?php if ($success): ?>
 
     <div class="ticket-result">
-        <h2>Skjemaet er mottatt!</h2>
+        <h2>Skjemaet er validert</h2>
+        <p>Saken og vedlegget er ikke lagret. Lagring er ikke tilgjengelig ennå.</p>
 
         <p><strong>Tittel:</strong>
             <?= htmlspecialchars($title) ?>

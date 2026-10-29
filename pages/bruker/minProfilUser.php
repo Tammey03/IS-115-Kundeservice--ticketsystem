@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/../../config/auth.php';
+requireRoles(['user']);
+?>
 <!DOCTYPE html>
 <html lang="no">
 

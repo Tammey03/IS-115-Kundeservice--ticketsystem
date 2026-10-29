@@ -89,6 +89,35 @@
     background-color: #12548a;
 }
 
+.test-accounts {
+    width: min(100%, 460px);
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #cbd9e6;
+    border-radius: 10px;
+    background-color: #edf4fa;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.test-accounts h2 {
+    margin-bottom: 12px;
+    font-size: 1.05rem;
+}
+
+.test-accounts dt {
+    font-weight: bold;
+}
+
+.test-accounts dd {
+    margin: 0 0 12px;
+}
+
+.test-accounts dd:last-child {
+    margin-bottom: 0;
+}
+
 .login-test-links {
     width: min(100%, 460px);
     margin-top: 22px;
@@ -142,4 +171,19 @@
     .login-card {
         padding: 28px 22px;
     }
+}
+
+.fill-test-account {
+    margin-top: 6px;
+    padding: 6px 12px;
+    border: 1px solid #1769aa;
+    border-radius: 6px;
+    background: white;
+    color: #1769aa;
+    font: inherit;
+    cursor: pointer;
+}
+
+.fill-test-account:hover {
+    background-color: #dceaf6;
 }

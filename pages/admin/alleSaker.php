@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/../../config/auth.php';
+requireRoles(['admin']);
+?>
 <!DOCTYPE html>
 <html lang="no">
 
@@ -103,6 +107,8 @@
             </tbody>
 
         </table>
+        </section>
+    </main>
     <footer>
         <!-- Footer kommer her -->
     </footer>

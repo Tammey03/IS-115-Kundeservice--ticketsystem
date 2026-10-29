@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/../../config/auth.php';
+requireRoles(['admin']);
+?>
 <!DOCTYPE html>
 <html lang="no">
 
@@ -25,6 +29,7 @@
             <p>
                 Dette er administrasjonspanelet for kundeservice. Her kan du
                 se og behandle alle saker som er opprettet av brukere.
+            </p>
 
         </section>
 
@@ -81,26 +86,6 @@
 
             </div>
 
-
-            <!-- Chat -->
-            <div class="service-card">
-
-                <h2>Chat med kundeservice</h2>
-
-                <p>
-                    Chat direkte med kundeservice dersom
-                    du trenger hjelp.
-                </p>
-
-                <!--
-                    chat.php ligger i pages-mappen.
-                    Derfor går vi én mappe tilbake.
-                -->
-                <a href="../chat.php" class="button">
-                    Start chat
-                </a>
-
-            </div>
 
         </section>
 

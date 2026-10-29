@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/../../config/auth.php';
+requireRoles(['admin']);
+?>
 <!DOCTYPE html>
 <html lang="no">
 
@@ -19,8 +23,8 @@
             <h1>Velkommen til Kundeservice</h1>
             <p>
                 Dette er en kundeserviceplattform som lar deg administrere og spore saker effektivt. 
-                Som bruker kan du opprette nye saker, se statusen på eksisterende saker, og oppdatere
-                profilinformasjonen din.
+                Som admin skal du kunne behandle og svare på brukernes saker.
+                Saksbehandling er ikke tilgjengelig ennå.
             </p>
 
             

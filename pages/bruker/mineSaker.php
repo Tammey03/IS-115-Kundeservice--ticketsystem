@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/../../config/auth.php';
+requireRoles(['user']);
+?>
 <!DOCTYPE html>
 <html lang="no">
 
@@ -34,7 +38,6 @@
         <a href="opprettSak.php" class="button">
             + Opprett ny sak
         </a>
-    </div>
 
 
     <div class="table-container">

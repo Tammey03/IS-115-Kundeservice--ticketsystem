@@ -1,0 +1,8 @@
+# Lokal databasekonfigurasjon og miljøvariabler
+/config/database.php
+.env
+.env.*
+!.env.example
+
+# Lokale systemfiler
+.DS_Store
