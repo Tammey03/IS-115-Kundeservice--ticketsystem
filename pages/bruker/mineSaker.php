@@ -1,6 +1,35 @@
 <?php
 require_once __DIR__ . '/../../config/auth.php';
 requireRoles(['user']);
+require_once __DIR__ . '/../../config/database.php';
+
+$tickets = [];
+$loadError = '';
+$statusClasses = [
+    'open' => 'status-apen',
+    'in_progress' => 'status-behandles',
+    'closed' => 'status-lost',
+];
+
+// Oversett databasens statusverdier til norsk i visningen.
+$statusLabels = ['open' => 'Åpen', 'in_progress' => 'Under behandling', 'closed' => 'Løst'];
+
+try {
+    // Bruk alltid eieren fra session, aldri en bruker-ID fra URL eller skjema.
+    $statement = $pdo->prepare(
+        'SELECT ticket_id, title, created_at, status
+         FROM tickets
+         WHERE user_id = :user_id
+         ORDER BY created_at DESC, ticket_id DESC'
+    );
+    $statement->execute(['user_id' => $_SESSION['user_id']]);
+    $tickets = $statement->fetchAll();
+} catch (PDOException $e) {
+    error_log('Kunne ikke hente mine saker: ' . $e->getMessage());
+    http_response_code(500);
+    $loadError = 'Kunne ikke hente sakene dine. Prøv igjen senere.';
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="no">
@@ -28,7 +57,7 @@ requireRoles(['user']);
 
             <div class="saker-header">
                 <div>
-                    <h1><br>Velkommen, [Brukernavn]!</h1>
+                    <h1><br>Velkommen, <?= htmlspecialchars($_SESSION['username'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>!</h1>
                     <h1>Mine saker</h1>
                     <p>Her finner du oversikt over sakene du har sendt inn.</p>
                 </div>
@@ -56,62 +85,36 @@ requireRoles(['user']);
 
             <tbody>
 
-                <!-- Mock-data -->
+                <?php // Vis hentefeil før vi sjekker om sakslisten er tom. ?>
+                <?php if ($loadError !== ''): ?>
                 <tr>
-                    <td>#1001</td>
-                    <td>Problem med innlogging</td>
-                    <td>10.09.2026</td>
-
+                    <!-- colspan dekker alle fem kolonner; role="alert" varsler skjermlesere. -->
+                    <td colspan="5" role="alert"><?= htmlspecialchars($loadError, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+                </tr>
+                <?php elseif (empty($tickets)): ?>
+                <tr>
+                    <td colspan="5">Du har ingen saker ennå.</td>
+                </tr>
+                <?php else: ?>
+                <?php // Lag én tabellrad for hver sak som ble hentet fra databasen. ?>
+                <?php foreach ($tickets as $ticket): ?>
+                <tr>
+                    <?php // (int) gjør saksnummeret til et heltall. ?>
+                    <td>#<?= (int) $ticket['ticket_id'] ?></td>
+                    <?php // htmlspecialchars viser tekst trygt, uten å tolke den som HTML. ?>
+                    <td><?= htmlspecialchars($ticket['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+                    <?php // Formater databasens tidspunkt som dag.måned.år. ?>
+                    <td><?= htmlspecialchars((new DateTimeImmutable($ticket['created_at']))->format('d.m.Y'), ENT_QUOTES, 'UTF-8') ?></td>
                     <td>
-                        <span class="status status-apen">
-                            Åpen
+                        <?php // Finn CSS-klassen for statusen; ?? '' gir tom klasse hvis statusen mangler i mappingen. ?>
+                        <span class="status <?= $statusClasses[$ticket['status']] ?? '' ?>">
+                            <?= htmlspecialchars($statusLabels[$ticket['status']] ?? $ticket['status'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                         </span>
                     </td>
-
-                    <td>
-                        <a href="#" class="details-link">
-                            Se sak
-                        </a>
-                    </td>
+                    <td></td>
                 </tr>
-
-
-                <tr>
-                    <td>#1002</td>
-                    <td>Problem med betaling</td>
-                    <td>08.09.2026</td>
-
-                    <td>
-                        <span class="status status-behandles">
-                            Under behandling
-                        </span>
-                    </td>
-
-                    <td>
-                        <a href="#" class="details-link">
-                            Se sak
-                        </a>
-                    </td>
-                </tr>
-
-
-                <tr>
-                    <td>#1003</td>
-                    <td>Endre kontaktinformasjon</td>
-                    <td>01.09.2026</td>
-
-                    <td>
-                        <span class="status status-lost">
-                            Løst
-                        </span>
-                    </td>
-
-                    <td>
-                        <a href="#" class="details-link">
-                            Se sak
-                        </a>
-                    </td>
-                </tr>
+                <?php endforeach; ?>
+                <?php endif; ?>
 
             </tbody>
 

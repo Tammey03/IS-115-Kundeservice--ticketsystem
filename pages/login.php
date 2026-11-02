@@ -4,6 +4,16 @@ require_once __DIR__ . '/../config/auth.php';
 $error = '';
 $email = '';
 
+// Private testkontoer lastes bare ved lokale forespørsler i utvikling.
+$testAccounts = [];
+$environment = getenv('APP_ENV');
+$isLocal = in_array($_SERVER['SERVER_ADDR'] ?? '', ['127.0.0.1', '::1'], true)
+    && in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true);
+$testAccountsFile = __DIR__ . '/../config/test-accounts.php';
+if ($isLocal && ($environment === false || $environment === 'development') && is_file($testAccountsFile)) {
+    $testAccounts = require $testAccountsFile;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = is_string($_POST['email'] ?? null) ? trim($_POST['email']) : '';
     $password = is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
@@ -101,6 +111,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
+      <?php if ($testAccounts): ?>
+      <aside class="test-accounts" aria-labelledby="test-accounts-title">
+        <h2 id="test-accounts-title">Lokale testkontoer</h2>
+        <dl>
+          <?php foreach ($testAccounts as $account): ?>
+          <dt><?= htmlspecialchars($account['label'], ENT_QUOTES, 'UTF-8') ?></dt>
+          <dd>E-post: <code><?= htmlspecialchars($account['email'], ENT_QUOTES, 'UTF-8') ?></code><br>
+            Passord: <code><?= htmlspecialchars($account['password'], ENT_QUOTES, 'UTF-8') ?></code><br>
+            <button type="button" class="fill-test-account"
+                data-email="<?= htmlspecialchars($account['email'], ENT_QUOTES, 'UTF-8') ?>"
+                data-password="<?= htmlspecialchars($account['password'], ENT_QUOTES, 'UTF-8') ?>">Fyll inn</button>
+          </dd>
+          <?php endforeach; ?>
+        </dl>
+        <p id="test-account-status" role="status"></p>
+      </aside>
+      <script src="../js/login-test-accounts.js" defer></script>
+      <?php endif; ?>
     </main>
 
     <script src="../js/script.js"></script>

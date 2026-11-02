@@ -4,11 +4,13 @@ requireRoles(['user']);
 require_once __DIR__ . '/../../classes/Sak.php';
 
 $errors = [];
-$success = false;
+// Engangsmelding etter videresending gjør at oppdatering ikke sender skjemaet på nytt.
+$createdTicketId = $_SESSION['created_ticket_id'] ?? null;
+unset($_SESSION['created_ticket_id']);
 
 $title = "";
 $category = "";
-$priority = "";
+$priority = "Normal";
 $description = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"] ?? null)) {
@@ -26,13 +28,47 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
 
     // Klassen kontrollerer feltene og returnerer eventuelle feil.
     $errors = $sak->valider();
-    $success = empty($errors);
+
+    // Vedlegg støttes først når sikker fillagring er implementert.
+    if (isset($_FILES['attachment']) &&
+        ($_FILES['attachment']['error'] ?? null) !== UPLOAD_ERR_NO_FILE) {
+        $errors[] = 'Vedlegg kan ikke lagres ennå. Send saken uten vedlegg.';
+    }
 
     // HTML-en nedenfor bruker disse variablene til å vise resultatet.
     $title = $sak->title;
     $category = $sak->category;
     $priority = $sak->priority;
     $description = $sak->description;
+
+    if (empty($errors)) {
+        require_once __DIR__ . '/../../config/database.php';
+        // Skjemaet viser norske valg, mens databasen bruker engelske verdier.
+        $priorities = ['Lav' => 'low', 'Normal' => 'medium', 'Høy' => 'high'];
+
+        try {
+            $statement = $pdo->prepare(
+                'INSERT INTO tickets (user_id, title, category, priority, description)
+                 VALUES (:user_id, :title, :category, :priority, :description)'
+            );
+            $statement->execute([
+                // Eieren hentes fra innloggingen, aldri fra skjemadata.
+                'user_id' => $_SESSION['user_id'],
+                'title' => $title,
+                'category' => $category,
+                'priority' => $priorities[$priority],
+                'description' => $description,
+            ]);
+
+            $_SESSION['created_ticket_id'] = (int) $pdo->lastInsertId();
+            header('Location: opprettSak.php', true, 303);
+            exit;
+        } catch (PDOException $e) {
+            error_log('Kunne ikke lagre sak: ' . $e->getMessage());
+            http_response_code(500);
+            $errors[] = 'Kunne ikke lagre saken. Prøv igjen senere.';
+        }
+    }
 }
 ?>
 
@@ -89,6 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
                     id="title"
                     name="title"
                     placeholder="Kort beskrivelse av problemet"
+                    value="<?= htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
                     maxlength="150"
                    
                 >
@@ -101,10 +138,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
 
                     <select id="category" name="category" >
                         <option value="">Velg kategori</option>
-                        <option>Innlogging</option>
-                        <option>Betaling</option>
-                        <option>Teknisk problem</option>
-                        <option>Annet</option>
+                        <option<?= $category === 'Innlogging' ? ' selected' : '' ?>>Innlogging</option>
+                        <option<?= $category === 'Betaling' ? ' selected' : '' ?>>Betaling</option>
+                        <option<?= $category === 'Teknisk problem' ? ' selected' : '' ?>>Teknisk problem</option>
+                        <option<?= $category === 'Annet' ? ' selected' : '' ?>>Annet</option>
                     </select>
                 </div>
 
@@ -112,9 +149,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
                     <label for="priority">Prioritet</label>
 
                     <select id="priority" name="priority">
-                        <option>Lav</option>
-                        <option selected>Normal</option>
-                        <option>Høy</option>
+                        <option<?= $priority === 'Lav' ? ' selected' : '' ?>>Lav</option>
+                        <option<?= $priority === 'Normal' ? ' selected' : '' ?>>Normal</option>
+                        <option<?= $priority === 'Høy' ? ' selected' : '' ?>>Høy</option>
                     </select>
                 </div>
 
@@ -129,7 +166,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
                     rows="7"
                     placeholder="Beskriv problemet så tydelig som mulig..."
               
-                ></textarea>
+                ><?= htmlspecialchars($description, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></textarea>
             </div>
 
             <div class="form-group">
@@ -141,8 +178,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
                         id="attachment"
                         name="attachment"
                         accept=".pdf,.jpg,.jpeg,.png"
+                        disabled
+                        aria-describedby="attachment-help"
 
                     >
+                <p id="attachment-help">Vedlegg kan ikke lagres ennå. Send saken uten vedlegg.</p>
             </div>
 
             <div class="form-actions">
@@ -156,38 +196,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
             </div>
 
         </form>
-        <?php if ($success): ?>
-
-    <div class="ticket-result">
-        <h2>Skjemaet er validert</h2>
-        <p>Saken og vedlegget er ikke lagret. Lagring er ikke tilgjengelig ennå.</p>
-
-        <p><strong>Tittel:</strong>
-            <?= htmlspecialchars($title) ?>
-        </p>
-
-        <p><strong>Kategori:</strong>
-            <?= htmlspecialchars($category) ?>
-        </p>
-
-        <p><strong>Prioritet:</strong>
-            <?= htmlspecialchars($priority) ?>
-        </p>
-
-        <p><strong>Beskrivelse:</strong>
-            <?= nl2br(htmlspecialchars($description)) ?>
-        </p>
-        <?php if (
-            isset($_FILES['attachment']['error']) &&
-            $_FILES['attachment']['error'] === UPLOAD_ERR_OK
-             ): ?>
-            <p><strong>Vedlegg:</strong> Vedlegget er godkjent.</p>
-            <?php else: ?>
-            <p><strong>Vedlegg:</strong> Ingen fil valgt.</p>
-            <?php endif; ?>
+        <?php if ($createdTicketId !== null): ?>
+    <div class="ticket-result" role="status">
+        <h2>Saken er lagret</h2>
+        <p>Saksnummer: #<?= (int) $createdTicketId ?></p>
+        <a href="mineSaker.php" class="details-link">Se mine saker</a>
     </div>
-
-<?php endif; ?>
+        <?php endif; ?>
 
     </section>
 
