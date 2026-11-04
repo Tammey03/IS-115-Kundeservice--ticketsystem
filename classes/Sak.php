@@ -52,9 +52,14 @@ class Sak
 }
 
         $validCategories = [
-            "Innlogging",
-            "Betaling",
-            "Teknisk problem",
+            "Vann og avløp",
+            "Strøm og varme",
+            "Internett",
+            "Skader og vedlikehold",
+            "Nøkler og adgang",
+            "Renhold og fellesområder",
+            "Støy og naboforhold",
+            "Husleie og kontrakt",
             "Annet"
         ];
 

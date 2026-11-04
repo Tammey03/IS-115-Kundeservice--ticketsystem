@@ -138,9 +138,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
 
                     <select id="category" name="category" >
                         <option value="">Velg kategori</option>
-                        <option<?= $category === 'Innlogging' ? ' selected' : '' ?>>Innlogging</option>
-                        <option<?= $category === 'Betaling' ? ' selected' : '' ?>>Betaling</option>
-                        <option<?= $category === 'Teknisk problem' ? ' selected' : '' ?>>Teknisk problem</option>
+                        <option<?= $category === 'Vann og avløp' ? ' selected' : '' ?>>Vann og avløp</option>
+                        <option<?= $category === 'Strøm og varme' ? ' selected' : '' ?>>Strøm og varme</option>
+                        <option<?= $category === 'Internett' ? ' selected' : '' ?>>Internett</option>
+                        <option<?= $category === 'Skader og vedlikehold' ? ' selected' : '' ?>>Skader og vedlikehold</option>
+                        <option<?= $category === 'Nøkler og adgang' ? ' selected' : '' ?>>Nøkler og adgang</option>
+                        <option<?= $category === 'Renhold og fellesområder' ? ' selected' : '' ?>>Renhold og fellesområder</option>
+                        <option<?= $category === 'Støy og naboforhold' ? ' selected' : '' ?>>Støy og naboforhold</option>
+                        <option<?= $category === 'Husleie og kontrakt' ? ' selected' : '' ?>>Husleie og kontrakt</option>
                         <option<?= $category === 'Annet' ? ' selected' : '' ?>>Annet</option>
                     </select>
                 </div>

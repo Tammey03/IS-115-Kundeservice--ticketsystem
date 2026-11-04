@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../config/auth.php';
 requireRoles(['user']);
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/tickets.php';
 
 $tickets = [];
 $loadError = '';
@@ -12,18 +13,11 @@ $statusClasses = [
 ];
 
 // Oversett databasens statusverdier til norsk i visningen.
-$statusLabels = ['open' => 'Åpen', 'in_progress' => 'Under behandling', 'closed' => 'Løst'];
+$statusLabels = ['open' => 'Mottatt', 'in_progress' => 'Under behandling', 'closed' => 'Løst'];
+$priorityLabels = ['low' => 'Lav', 'medium' => 'Normal', 'high' => 'Høy'];
 
 try {
-    // Bruk alltid eieren fra session, aldri en bruker-ID fra URL eller skjema.
-    $statement = $pdo->prepare(
-        'SELECT ticket_id, title, created_at, status
-         FROM tickets
-         WHERE user_id = :user_id
-         ORDER BY created_at DESC, ticket_id DESC'
-    );
-    $statement->execute(['user_id' => $_SESSION['user_id']]);
-    $tickets = $statement->fetchAll();
+    $tickets = hentMineTickets($pdo);
 } catch (PDOException $e) {
     error_log('Kunne ikke hente mine saker: ' . $e->getMessage());
     http_response_code(500);
@@ -41,7 +35,7 @@ try {
     <title>Kundeservice</title>
 
     <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="../../css/mineSaker.css">
+    <link rel="stylesheet" href="../../css/mineSaker.css?v=<?= filemtime(__DIR__ . '/../../css/mineSaker.css') ?>">
 
 </head>
 
@@ -79,7 +73,7 @@ try {
                     <th>Tittel</th>
                     <th>Sendt inn</th>
                     <th>Status</th>
-                    <th></th>
+                    <th>Detaljer</th>
                 </tr>
             </thead>
 
@@ -111,7 +105,25 @@ try {
                             <?= htmlspecialchars($statusLabels[$ticket['status']] ?? $ticket['status'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                         </span>
                     </td>
-                    <td></td>
+                    <td>
+                        <button type="button" class="button details-link" data-ticket-dialog="sak-<?= (int) $ticket['ticket_id'] ?>" aria-haspopup="dialog" aria-label="Se sak #<?= (int) $ticket['ticket_id'] ?>">Se sak</button>
+                        <?php // Innholdet vises først når JavaScript kopierer det til dialogen. ?>
+                        <template id="sak-<?= (int) $ticket['ticket_id'] ?>">
+                            <h2 id="sak-dialog-title">Sak #<?= (int) $ticket['ticket_id'] ?>: <?= htmlspecialchars($ticket['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
+                            <dl class="sak-details">
+                                <dt>Sendt inn</dt>
+                                <dd><?= htmlspecialchars((new DateTimeImmutable($ticket['created_at']))->format('d.m.Y H:i'), ENT_QUOTES, 'UTF-8') ?></dd>
+                                <dt>Status</dt>
+                                <dd><?= htmlspecialchars($statusLabels[$ticket['status']] ?? $ticket['status'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
+                                <dt>Kategori</dt>
+                                <dd><?= htmlspecialchars($ticket['category'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
+                                <dt>Prioritet</dt>
+                                <dd><?= htmlspecialchars($priorityLabels[$ticket['priority']] ?? $ticket['priority'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
+                                <dt>Beskrivelse</dt>
+                                <dd class="sak-description"><?= htmlspecialchars($ticket['description'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
+                            </dl>
+                        </template>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
                 <?php endif; ?>
@@ -128,12 +140,20 @@ try {
 
     </main>
 
+    <!-- showModal() legger dialogen over siden og holder tastaturfokus inne i den. -->
+    <dialog id="sak-dialog" class="sak-dialog" aria-labelledby="sak-dialog-title">
+        <form method="dialog" class="sak-dialog-close">
+            <button type="submit" class="button" autofocus>Lukk ✕</button>
+        </form>
+        <div id="sak-dialog-content"></div>
+    </dialog>
 
     <footer>
         <!-- Footer kommer her -->
     </footer>
 
     <script src="../../js/navBar.js"></script>
+    <script src="../../js/mineSaker.js"></script>
 </body>
 
 </html>

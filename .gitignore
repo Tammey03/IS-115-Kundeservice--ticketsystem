@@ -6,3 +6,6 @@
 
 # Lokale systemfiler
 .DS_Store
+
+# Private lokale testkontoer
+/config/test-accounts.php
