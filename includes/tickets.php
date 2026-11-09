@@ -32,11 +32,31 @@ function hentAlleTickets(PDO $pdo): array
 {
     requireRoles(['admin']);
     $statement = $pdo->query(
-        'SELECT ticket_id, title, created_at, status, category, priority, description
-         FROM tickets
-         ORDER BY created_at DESC, ticket_id DESC'
+        'SELECT t.ticket_id, t.title, t.created_at, t.status, t.category, t.priority,
+                t.description, t.assigned_to, u.username AS assigned_to_name
+         FROM tickets AS t
+         LEFT JOIN users AS u ON u.user_id = t.assigned_to
+         ORDER BY t.created_at DESC, t.ticket_id DESC'
     );
     return $statement->fetchAll();
+}
+
+// Tildel saken til innlogget admin. Én atomisk oppdatering hindrer at to tar samme sak.
+function taTicket(PDO $pdo, int $ticketId): bool
+{
+    requireRoles(['admin']);
+    if ($ticketId < 1) {
+        throw new InvalidArgumentException('Ugyldig saksnummer.');
+    }
+    $statement = $pdo->prepare(
+        "UPDATE tickets SET status = 'in_progress', assigned_to = :assigned_to
+         WHERE ticket_id = :ticket_id AND status = 'open'"
+    );
+    $statement->execute([
+        'assigned_to' => (int) $_SESSION['user_id'],
+        'ticket_id' => $ticketId,
+    ]);
+    return $statement->rowCount() === 1;
 }
 
 // Status og prioritet lagres samlet etter bekreftelsen.

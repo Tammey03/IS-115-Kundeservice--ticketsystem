@@ -69,6 +69,7 @@ if (!$ticketId) {
 <!DOCTYPE html>
 <html lang="no">
 <head>
+    <script src="../../js/auth-history.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Behandle sak – Kundeservice</title>

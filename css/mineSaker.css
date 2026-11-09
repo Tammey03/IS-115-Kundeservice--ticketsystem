@@ -236,6 +236,16 @@
     flex-wrap: wrap;
 }
 
+.sak-rad-knapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sak-rad-knapper form {
+    margin: 0;
+}
+
 .sak-redigering {
     display: flex;
     align-items: center;
