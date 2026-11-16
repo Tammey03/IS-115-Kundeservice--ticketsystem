@@ -1,4 +1,13 @@
 <?php
+/*
+Filen er en saksoversikt for brukere, 
+og viser en tabell med alle sakene som er sendt inn av den innloggede brukeren.
+
+Saksdetaljene åpnes i en dialog som krever JavaScript.
+Alle brukerens saker hentes samtidig uten sideinndeling,
+noe som kan bli mindre effektivt ved mange saker.
+*/
+
 require_once __DIR__ . '/../../config/auth.php';
 requireRoles(['user']);
 require_once __DIR__ . '/../../config/database.php';
@@ -16,9 +25,16 @@ $statusClasses = [
 $statusLabels = ['open' => 'Mottatt', 'in_progress' => 'Under behandling', 'closed' => 'Løst'];
 $priorityLabels = ['low' => 'Lav', 'medium' => 'Normal', 'high' => 'Høy'];
 
+
 try {
+    /* 
+    Henter bare sakene til den innloggede brukeren, med nyeste først.
+    Funksjonen bruker bruker-ID fra sesjonen for å avgrense resultatet.
+    */
     $tickets = hentMineTickets($pdo);
 } catch (PDOException $e) {
+    /* Logger tekniske detaljer for feilsøking, mens brukeren får
+         en generell melding som ikke avslører databaseinformasjon. */
     error_log('Kunne ikke hente mine saker: ' . $e->getMessage());
     http_response_code(500);
     $loadError = 'Kunne ikke hente sakene dine. Prøv igjen senere.';
@@ -80,7 +96,10 @@ try {
 
             <tbody>
 
-                <?php // Vis hentefeil før vi sjekker om sakslisten er tom. ?>
+                <?php
+                // Skiller databasefeil fra en tom saksliste, slik at en feil
+                // ikke vises som om brukeren mangler saker.
+                ?>
                 <?php if ($loadError !== ''): ?>
                 <tr>
                     <!-- colspan dekker alle fem kolonner; role="alert" varsler skjermlesere. -->

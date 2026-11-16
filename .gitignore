@@ -9,3 +9,4 @@
 
 # Private lokale testkontoer
 /config/test-accounts.php
+/config/opprettTestBruker.php

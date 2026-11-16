@@ -61,6 +61,11 @@ try {
                 Saksbehandling er ikke tilgjengelig ennå.
             </p>
 
+            <?php if (isset($_SESSION['ticket_message'])): ?>
+                <p role="status"><?= htmlspecialchars($_SESSION['ticket_message'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+                <?php unset($_SESSION['ticket_message']); ?>
+            <?php endif; ?>
+
             <div class="table-container">
              <table class="saker-table">
 

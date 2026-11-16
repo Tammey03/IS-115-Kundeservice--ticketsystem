@@ -1,4 +1,10 @@
 <?php
+/*
+Klassen klargjør og validerer saksdata.
+Den lagrer verken saker eller vedlegg. Lagring av selve saken
+håndteres i opprettSak.php.
+*/
+
 class Sak
 {
     public $title;
@@ -8,6 +14,9 @@ class Sak
     private $typeErrors = [];
     private $attachment;
 
+    /*Klargjør saksdata for validering ved å kontrollere datatyper,
+    fjerne mellomrom rundt tittel og beskrivelse og bruke
+     Normal som prioritet når prioriteten er tom. */
     public function __construct($title, $category, $priority, $description, $attachment = null)
     {
         $this->attachment = $attachment;
@@ -25,7 +34,8 @@ class Sak
             }
         }
 
-        // Bruk trygge tekstverdier også når skjemaet har feil datatype.
+        /* Bruker tom tekst ved feil datatype slik at trim() og andre
+            tekstfunksjoner ikke får verdier de ikke kan behandle. */
         $title = is_string($title) ? $title : '';
         $category = is_string($category) ? $category : '';
         $priority = is_string($priority) ? $priority : '';
@@ -36,7 +46,8 @@ class Sak
         $this->priority = $priority === "" ? "Normal" : $priority;
         $this->description = trim($description);
     }
-
+    //Denne funksjonen validerer saksdataene og returnerer en liste med eventuelle feil. 
+    //Hvis det er ingen feil, returnerer den listen som tom.
     public function valider()
     {
         if (!empty($this->typeErrors)) {
@@ -44,13 +55,15 @@ class Sak
         }
 
         $errors = [];
-
+        /* Bruker mb_strlen() slik at norske bokstaver som æ, ø og å 
+            telles som ett tegn hver i UTF-8. */
         if ($this->title === "") {
             $errors[] = "Du må fylle ut en tittel.";
         }   elseif (mb_strlen($this->title, 'UTF-8') > 150) {
             $errors[] = "Tittelen kan ikke være lengre enn 150 tegn.";
 }
-
+        /* Kontrollerer tillatte valg på serveren fordi verdiene
+         fra skjemaet kan manipuleres utenfor nettleserens meny.*/
         $validCategories = [
             "Vann og avløp",
             "Strøm og varme",
@@ -63,7 +76,7 @@ class Sak
             "Annet"
         ];
 
-        if (!in_array($this->category, $validCategories, true)) {
+ if (!in_array($this->category, $validCategories, true)) {
             $errors[] = "Du må velge en gyldig kategori.";
         }
 
@@ -77,7 +90,7 @@ class Sak
 
         return array_merge($errors, $this->validerVedlegg());
     }
-
+    //Denne funksjonen validerer vedlegget og returnerer en liste med eventuelle feil.
     private function validerVedlegg()
     {
         $file = $this->attachment;
@@ -115,6 +128,9 @@ class Sak
         if ($size > $maxSize) {
             return ['Vedlegget kan ikke være større enn 5 MB.'];
         }
+
+        /*Undersøker filinnholdets MIME-type fordi filendelsen alene
+        ikke er tilstrekkelig til å avgjøre filtypen.*/
 
         $finfo = new finfo(FILEINFO_MIME_TYPE);
         $mimeType = $finfo->file($tmpName);

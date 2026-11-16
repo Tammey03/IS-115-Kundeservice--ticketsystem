@@ -55,7 +55,7 @@ if (!$ticketId) {
             }
             if ($saveError === '' && !$confirmSave) {
                 $_SESSION['ticket_message'] = 'Endringen er lagret.';
-                header('Location: behandleSak.php?saksnummer=' . $ticketId);
+                header('Location: behandleSaker.php', true, 303);
                 exit;
             }
         }

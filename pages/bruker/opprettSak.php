@@ -1,4 +1,13 @@
 <?php
+/*
+Hensikten med denne filen er for at brukeren kan sendre inn en sak
+som det skal sendre videre til sakbehandlen.  
+Saksdata valideres med Sak-klassen før lagring i databasen.
+Siden krever en innlogget bruker med rollen user.
+Vedlegg støttes ikke fordi sikker fillagring mangler.
+*/
+
+// Henter og fjerner bekreftelsen fra sesjonen slik at den vises én gang.
 require_once __DIR__ . '/../../config/auth.php';
 requireRoles(['user']);
 require_once __DIR__ . '/../../classes/Sak.php';
@@ -12,6 +21,9 @@ $title = "";
 $category = "";
 $priority = "Normal";
 $description = "";
+
+/* Kontrollerer CSRF-token før saksdata behandles for å beskytte 
+mot at andre nettsider sender inn skjemaet på brukerens vegne. */
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"] ?? null)) {
     http_response_code(403);
@@ -29,13 +41,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
     // Klassen kontrollerer feltene og returnerer eventuelle feil.
     $errors = $sak->valider();
 
-    // Vedlegg støttes først når sikker fillagring er implementert.
+    /* Avviser vedlegg fordi sikker fillagring mangler.
+        Kontrollen må også gjøres på serveren fordi det deaktiverte
+        filfeltet i nettleseren kan omgås. */
     if (isset($_FILES['attachment']) &&
         ($_FILES['attachment']['error'] ?? null) !== UPLOAD_ERR_NO_FILE) {
         $errors[] = 'Vedlegg kan ikke lagres ennå. Send saken uten vedlegg.';
     }
 
-    // HTML-en nedenfor bruker disse variablene til å vise resultatet.
+    // Beholder innholdet i skjemaet ved valideringsfeil,
+    // slik at brukeren slipper å fylle ut alt på nytt.
     $title = $sak->title;
     $category = $sak->category;
     $priority = $sak->priority;
@@ -47,6 +62,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
         $priorities = ['Lav' => 'low', 'Normal' => 'medium', 'Høy' => 'high'];
 
         try {
+            /*Bruker parametere for å holde skjemadata adskilt fra SQL-koden
+            /og beskytte mot SQL-injeksjon.*/
+            
             $statement = $pdo->prepare(
                 'INSERT INTO tickets (user_id, title, category, priority, description)
                  VALUES (:user_id, :title, :category, :priority, :description)'
@@ -103,19 +121,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
                 Fyll ut informasjonen under for å sende inn en ny henvendelse.
             </p>
         </div>
-<?php if (!empty($errors)): ?>
+        <?php if (!empty($errors)): ?>
 
-    <div class="ticket-errors">
-        <h3>Det oppstod noen feil:</h3>
+        <div class="ticket-errors">
+            <h3>Det oppstod noen feil:</h3>
 
-        <ul>
-            <?php foreach ($errors as $error): ?>
-                <li><?= htmlspecialchars($error) ?></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
+            <ul>
 
-<?php endif; ?>
+                 <?php // Bruker htmlspecialchars for å unngå XSS-angrep.  ?>
+                 <?php foreach ($errors as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
+                <?php endforeach; ?>
+            </ul>
+         </div>
+
+        <?php endif; ?>
+
         <form class="ticket-form" method="POST" action="opprettSak.php" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
 
