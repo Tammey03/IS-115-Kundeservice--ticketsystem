@@ -21,24 +21,24 @@ requireRoles(['user']);
         <nav class="navbar">
 
             <!-- Logo / navn på systemet -->
-            <a href="mainUser.php" class="logo">
+            <a href="/IS-115-Kundeservice--ticketsystem/pages/bruker/mainUser.php" class="logo">
                 Kundeservice
             </a>
 
             <!-- Navigasjon mellom brukerens sider -->
             <div class="nav-links">
 
-                <a href="mainUser.php">Hjem</a>
+                <a href="/IS-115-Kundeservice--ticketsystem/pages/bruker/mainUser.php">Hjem</a>
 
-                <a href="mineSaker.php">Mine saker</a>
+                <a href="/IS-115-Kundeservice--ticketsystem/pages/bruker/mineSaker.php">Mine saker</a>
 
-                <a href="opprettSak.php">Opprett sak</a>
+                <a href="/IS-115-Kundeservice--ticketsystem/pages/bruker/opprettSak.php">Opprett sak</a>
 
-                <a href="minProfilUser.php">Min profil</a>
+                <a href="/IS-115-Kundeservice--ticketsystem/pages/bruker/minProfilUser.php">Min profil</a>
 
                 <!-- Utlogging bruker POST med CSRF-token for å beskytte
                 mot at andre nettsider logger ut brukeren uten ønske om det. -->
-                <form class="logout-form" action="../logout.php" method="post">
+                <form class="logout-form" action="/IS-115-Kundeservice--ticketsystem/pages/logout.php" method="post">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
                     <button type="submit" class="logout-button">Logg ut</button>
                 </form>

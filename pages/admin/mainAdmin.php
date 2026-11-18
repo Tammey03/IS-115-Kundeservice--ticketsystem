@@ -87,6 +87,23 @@ requireRoles(['admin']);
 
             </div>
 
+            <!-- =========================
+                 MELDINGER
+                Samtaler om saker som er tildelt saksbehandleren.
+             ========================= -->
+            <div class="service-card">
+                <h2>Meldinger</h2>
+
+                <p>
+                    Les og svar på meldinger fra kunder
+                    i sakene du er tildelt.
+                </p>
+
+                <a href="../chat.php" class="button">
+                     Åpne meldinger
+                </a>
+            </div>
+
 
         </section>
 

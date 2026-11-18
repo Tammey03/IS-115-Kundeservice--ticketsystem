@@ -7,20 +7,22 @@ requireRoles(['admin']);
         <nav class="navbar">
 
             <!-- Logo / navn på systemet -->
-            <a href="mainAdmin.php" class="logo">
+            <a href="/IS-115-Kundeservice--ticketsystem/pages/admin/mainAdmin.php" class="logo">
                 Kundeservice
             </a>
 
             <!-- Navigasjon mellom brukerens sider -->
             <div class="nav-links">
 
-                <a href="mainAdmin.php">Hjem</a>
-                <a href="alleSaker.php">Saker</a>
-                <a href="behandleSaker.php">Mine behandlinger saker</a>
-                <a href="fellesSaker.php">Felles saker</a>
-                <a href="minProfilAdmin.php">Min profil</a>
+              <a href="/IS-115-Kundeservice--ticketsystem/pages/admin/mainAdmin.php">
+                 Hjem
+                </a>
+                <a href="/IS-115-Kundeservice--ticketsystem/pages/admin/alleSaker.php">Saker</a>
+                <a href="/IS-115-Kundeservice--ticketsystem/pages/admin/behandleSaker.php">Mine behandlinger saker</a>
+                <a href="/IS-115-Kundeservice--ticketsystem/pages/admin/fellesSaker.php">Felles saker</a>
+                <a href="/IS-115-Kundeservice--ticketsystem/pages/admin/minProfilAdmin.php">Min profil</a>
 
-                <form class="logout-form" action="../logout.php" method="post">
+                <form class="logout-form" action="/IS-115-Kundeservice--ticketsystem/pages/logout.php" method="post">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
                     <button type="submit" class="logout-button">Logg ut</button>
                 </form>

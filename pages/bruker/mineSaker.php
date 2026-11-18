@@ -68,7 +68,16 @@ try {
 
             <div class="saker-header">
                 <div>
-                    <h1><br>Velkommen, <?= htmlspecialchars($_SESSION['username'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>!</h1>
+                   <h1><br>Velkommen, <?= htmlspecialchars(
+                     $_SESSION['first_name'] ?? $_SESSION['username'] ?? 'bruker',
+                    ENT_QUOTES | ENT_SUBSTITUTE,
+                     'UTF-8'
+                    ) ?>!</h1>
+                    
+                    
+                    
+                    
+                    
                     <h1>Mine saker</h1>
                     <p>Her finner du oversikt over sakene du har sendt inn.</p>
                 </div>
@@ -126,6 +135,11 @@ try {
                         </span>
                     </td>
                     <td>
+                        <a href="../chat.php?saksnummer=<?= (int) $ticket['ticket_id'] ?>"
+                            class="button details-link messages-link"
+                        >
+                             Meldinger
+                        </a>
                         <button type="button" class="button details-link" data-ticket-dialog="sak-<?= (int) $ticket['ticket_id'] ?>" aria-haspopup="dialog" aria-label="Se sak #<?= (int) $ticket['ticket_id'] ?>">Se sak</button>
                         <?php // Innholdet vises først når JavaScript kopierer det til dialogen. ?>
                         <template id="sak-<?= (int) $ticket['ticket_id'] ?>">

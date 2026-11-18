@@ -12,6 +12,7 @@ effektivt når antallet saker øker.
 */
  
 require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/messages.php';
 
 // Brukeren kan bare hente egne saker. Eieren leses fra session, ikke fra URL.
 // Returnerer sakene som en liste med nyeste først, eller en tom liste uten saker.
@@ -65,17 +66,50 @@ function taTicket(PDO $pdo, int $ticketId): bool
     if ($ticketId < 1) {
         throw new InvalidArgumentException('Ugyldig saksnummer.');
     }
-    // Statuskravet sjekkes i samme UPDATE som tildelingen, slik at bare
-    // en sak som fortsatt er åpen kan tas, også ved samtidige forespørsler.
-    $statement = $pdo->prepare(
-        "UPDATE tickets SET status = 'in_progress', assigned_to = :assigned_to
-         WHERE ticket_id = :ticket_id AND status = 'open'"
-    );
-    $statement->execute([
-        'assigned_to' => (int) $_SESSION['user_id'],
-        'ticket_id' => $ticketId,
-    ]);
-    return $statement->rowCount() === 1;
+    /* =========================
+   TILDEL SAK OG SEND AUTOMATISK MELDING
+   Begge endringene lagres samlet.
+   ========================= */
+    $pdo->beginTransaction();
+
+    try {
+        // Bare en åpen sak kan tas.
+        $statement = $pdo->prepare(
+            "UPDATE tickets
+            SET status = 'in_progress', assigned_to = :assigned_to
+            WHERE ticket_id = :ticket_id AND status = 'open'"
+        );
+
+        $statement->execute([
+            'assigned_to' => (int) $_SESSION['user_id'],
+            'ticket_id' => $ticketId,
+        ]);
+
+        // Ingen melding sendes hvis saken ikke kunne tildeles.
+        if ($statement->rowCount() !== 1) {
+            $pdo->rollBack();
+            return false;
+        }
+
+        // Meldingen lagres med den nye saksbehandleren som avsender.
+        lagreMelding(
+            $pdo,
+            $ticketId,
+            'Hei! Saken din er nå under behandling. '
+            . 'Send gjerne en melding her hvis du lurer på noe.'
+        );
+
+        $pdo->commit();
+        return true;
+
+    } catch (Throwable $e) {
+        // Hvis noe feiler, angres både tildelingen og meldingen.
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+
+        throw $e;
+    }
 }
 
 // Oppdaterer status og prioritet samlet. Eventuell bekreftelse håndteres av siden som kaller funksjonen.

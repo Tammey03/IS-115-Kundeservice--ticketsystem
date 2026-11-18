@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         require_once __DIR__ . '/../config/database.php';
         try {
             $statement = $pdo->prepare(
-                'SELECT user_id, username, password_hash, role FROM users WHERE email = :email LIMIT 1'
+                'SELECT user_id, username, first_name, last_name, password_hash, role FROM users WHERE email = :email LIMIT 1'
             );
             $statement->execute(['email' => $email]);
             $user = $statement->fetch();
@@ -40,6 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'user_id' => $user['user_id'],
                     'username' => $user['username'],
                     'role' => $user['role'],
+                    'first_name' => $user['first_name'],
+                    'last_name' => $user['last_name'],
                 ];
                 $destinations = [
                     'user' => 'bruker/mainUser.php',

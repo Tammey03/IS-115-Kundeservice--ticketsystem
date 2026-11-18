@@ -260,3 +260,18 @@
     border-radius: 6px;
     font: inherit;
 }
+
+/* Samme form og størrelse som Se sak, med egen farge. */
+.button.messages-link {
+    background-color: #0f766e;
+    color: white;
+}
+
+.button.messages-link:hover {
+    background-color: #115e59;
+}
+
+.button.messages-link:focus-visible {
+    outline: 3px solid #0f766e;
+    outline-offset: 3px;
+}
