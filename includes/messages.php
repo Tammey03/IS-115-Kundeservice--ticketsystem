@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../includes/conversations.php';
 
 // Henter saken bare hvis innlogget bruker har tilgang til samtalen.
 function hentSakForSamtale(PDO $pdo, int $ticketId): ?array

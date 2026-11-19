@@ -8,6 +8,7 @@ requireRoles(['user', 'admin']);
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/messages.php';
+require_once __DIR__ . '/../includes/conversations.php';
 
 /* =========================
    SAKSNUMMER FRA ADRESSEN
@@ -26,13 +27,37 @@ if (isset($_GET['saksnummer']) && !$ticketId) {
     http_response_code(400);
     exit('Ugyldig saksnummer.');
 }
-
-// Sending krever at en sak er valgt.
+/*
+// Sending krever at en sak er valgt. 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$ticketId) {
     http_response_code(400);
     exit('Velg en sak før du sender en melding.');
 }
+*/
 
+/* =========================
+   GENERELL SAMTALE FRA ADRESSEN
+   Eksempel: chat.php?samtale=1
+   ========================= */
+$conversationId = filter_input(
+    INPUT_GET,
+    'samtale',
+    FILTER_VALIDATE_INT,
+    ['options' => ['min_range' => 1]]
+);
+
+if (isset($_GET['samtale']) && !$conversationId) {
+    http_response_code(400);
+    exit('Ugyldig samtalenummer.');
+}
+
+// En side skal vise enten en sak eller en generell samtale.
+if ($ticketId && $conversationId) {
+    http_response_code(400);
+    exit('Velg enten en sak eller en generell samtale.');
+}
+
+$samtale = null;
 $ticket = null;
 $meldinger = [];
 
@@ -42,12 +67,43 @@ $meldinger = [];
    ========================= */
 $sendError = '';
 $messageText = '';
+
+// Vis ny samtale bare for kunder som har trykket «Ny samtale».
+$nySamtale = ($_GET['ny'] ?? null) === '1'
+    && $_SESSION['role'] === 'user';
+    // Bare én type samtale kan være valgt om gangen.
+    if ($nySamtale && ($ticketId || $conversationId)) {
+        http_response_code(400);
+        exit('Velg enten ny samtale eller en eksisterende samtale.');
+    }
+
+    // Sending krever en valgt samtale eller en ny kundesamtale.
+    if ($_SERVER['REQUEST_METHOD'] === 'POST'
+        && !$ticketId && !$conversationId && !$nySamtale) {
+        http_response_code(400);
+        exit('Velg en samtale før du sender en melding.');
+    }
+
+
+
 /* =========================
    HENT SAK OG SAMTALELISTE
    Kontrollerer tilgang til valgt sak og henter tilgjengelige saker.
    ========================= */
 try {
    $samtaleSaker = hentSamtaleSaker($pdo);
+   $generelleSamtaler = hentMineSamtaler($pdo);
+   // Hent generell samtale og historikk etter tilgangskontroll.
+    if ($conversationId) {
+        $samtale = hentGenerellSamtale($pdo, $conversationId);
+
+        if ($samtale === null) {
+            http_response_code(404);
+            exit('Samtalen finnes ikke, eller du har ikke tilgang.');
+        }
+
+        $meldinger = hentGenerelleMeldinger($pdo, $conversationId);
+    }
 
     if ($ticketId) {
     $ticket = hentSakForSamtale($pdo, $ticketId);
@@ -72,13 +128,21 @@ try {
         $sendError = 'Ugyldig skjema. Last siden på nytt.';
         } else {
             try {
-                lagreMelding($pdo, $ticketId, $messageText);
+               // Velg riktig lagring for ny samtale, generell samtale eller sak.
+                if ($nySamtale) {
+                    $newId = opprettSamtale($pdo, $messageText);
+                    $destination = 'chat.php?samtale=' . $newId;
 
-                header(
-                    'Location: chat.php?saksnummer=' . $ticketId,
-                    true,
-                    303
-                );
+                } elseif ($conversationId) {
+                    lagreGenerellMelding($pdo, $conversationId, $messageText);
+                    $destination = 'chat.php?samtale=' . $conversationId;
+
+                } else {
+                    lagreMelding($pdo, $ticketId, $messageText);
+                    $destination = 'chat.php?saksnummer=' . $ticketId;
+                }
+
+                header('Location: ' . $destination, true, 303);
                 exit;
             } catch (InvalidArgumentException $e) {
             $sendError = $e->getMessage();
@@ -150,11 +214,47 @@ try {
     <aside class="chat-sidebar">
         <h2>Meldinger</h2>
 
-        <!-- Generelle samtaler er foreløpig ikke aktivert. -->
-        <button type="button" class="button" disabled>
-            + Ny samtale
-        </button>
+       <!-- Bare kunder kan starte en generell samtale. -->
+        <?php if ($_SESSION['role'] === 'user'): ?>
+            <a href="chat.php?ny=1" class="button">
+                + Ny samtale
+            </a>
+        <?php endif; ?>
+            <!-- =========================
+     GENERELLE SAMTALER
+     Lagrede samtaler med kundeservice.
+     ========================= -->
+        <h3>Kundeservice</h3>
 
+        <nav class="chat-case-list" aria-label="Generelle samtaler">
+            <?php if (empty($generelleSamtaler)): ?>
+                <p>Ingen samtaler ennå.</p>
+            <?php endif; ?>
+
+            <?php foreach ($generelleSamtaler as $generell): ?>
+                <a
+                    href="chat.php?samtale=<?= (int) $generell['conversation_id'] ?>"
+                    class="chat-case-link"
+                    <?= (int) $generell['conversation_id'] === $conversationId
+                        ? 'aria-current="page"'
+                        : '' ?>
+                >
+                    <strong>
+                        Samtale #<?= (int) $generell['conversation_id'] ?>
+                    </strong>
+
+                    <?php if ($_SESSION['role'] === 'admin'): ?>
+                        <span>
+                            <?= htmlspecialchars(
+                                $generell['username'],
+                                ENT_QUOTES | ENT_SUBSTITUTE,
+                                'UTF-8'
+                            ) ?>
+                        </span>
+                    <?php endif; ?>
+                </a>
+            <?php endforeach; ?>
+        </nav>
         <h3>Mine saker</h3>
        <nav class="chat-case-list" aria-label="Sakssamtaler">
     <?php if (empty($samtaleSaker)): ?>
@@ -188,24 +288,74 @@ try {
          Overskrift, meldingshistorikk og skrivefelt for valgt sak.
          ========================= -->
     <section class="chat-conversation">
-        <?php if ($ticket === null): ?>
+       <?php if ($nySamtale): ?>
+
+    <!-- =========================
+         NY GENERELL SAMTALE
+         Første melding til kundeservice.
+         ========================= -->
+    <header class="chat-header">
+        <h1>Ny samtale med kundeservice</h1>
+        <p>Still et generelt spørsmål. Vi svarer så snart vi kan.</p>
+    </header>
+
+    <div class="chat-messages">
+        <p>Skriv din første melding nedenfor.</p>
+    </div>
+
+    <form method="post" action="chat.php?ny=1" class="chat-compose">
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>"
+        >
+            <?php if ($sendError !== ''): ?>
+                <p role="alert">
+                    <?= htmlspecialchars(
+                        $sendError,
+                        ENT_QUOTES | ENT_SUBSTITUTE,
+                        'UTF-8'
+                    ) ?>
+                </p>
+            <?php endif; ?>
+        <label for="new-message">Din melding</label>
+
+        <textarea
+            id="new-message"
+            name="message"
+            rows="3"
+            maxlength="5000"
+            placeholder="Hva lurer du på?"
+            required
+        ></textarea>
+
+        <button type="submit" class="button" >
+            Start samtale
+        </button>
+    </form>
+
+   <?php elseif ($ticket === null && $samtale === null): ?>
         <div class="chat-messages">
             <h1>Meldinger</h1>
             <p>Velg en sak fra listen til venstre for å åpne samtalen.</p>
          </div>
         <?php else: ?>
         <!-- Saksnummer og tittel for den åpne samtalen. -->
-        <header class="chat-header">
-            <h1>Sak #<?= (int) $ticket['ticket_id'] ?></h1>
-
-            <p>
-                <?= htmlspecialchars(
-                    $ticket['title'],
-                    ENT_QUOTES | ENT_SUBSTITUTE,
-                    'UTF-8'
-                ) ?>
-            </p>
-        </header>
+    <header class="chat-header">
+            <?php if ($samtale !== null): ?>
+                <h1>Samtale med kundeservice</h1>
+                <p>Generelle spørsmål</p>
+            <?php else: ?>
+                <h1>Sak #<?= (int) $ticket['ticket_id'] ?></h1>
+                <p>
+                    <?= htmlspecialchars(
+                        $ticket['title'],
+                        ENT_QUOTES | ENT_SUBSTITUTE,
+                        'UTF-8'
+                    ) ?>
+                </p>
+            <?php endif; ?>
+    </header>
 
         <!-- =========================
          MELDINGSHISTORIKK
