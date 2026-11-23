@@ -106,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
 
 <body>
     
-    <?php require __DIR__ . '/includes/header.php'; ?>
+     <?php require __DIR__ . '/../../includes/header.php'; ?>
 
     <main>
         <!-- =========================
@@ -205,7 +205,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
                         id="attachment"
                         name="attachment"
                         accept=".pdf,.jpg,.jpeg,.png"
-                        disabled
                         aria-describedby="attachment-help"
 
                     >

@@ -18,12 +18,13 @@ requireRoles(['admin']);
         Deretter går vi inn i css-mappen.
     -->
     <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="../../css/minProfil.css">
+    <link rel="stylesheet" href="../../css/minprofil.css">
 </head>
 
 <body>
 
-   <?php require __DIR__ . '/includes/headerAdmin.php'; ?>
+   <?php require __DIR__ . '/../../includes/headerAdmin.php'; ?>
+    <?php require __DIR__ . '/../../includes/logoutForm.php'; ?>
 
 
     <!-- =========================

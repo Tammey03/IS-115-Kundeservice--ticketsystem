@@ -25,7 +25,7 @@ requireRoles(['user']);
     <!-- =========================
          NAVIGASJON
          ========================= -->
-     <?php require __DIR__ . '/includes/header.php'; ?>
+     <?php require __DIR__ . '/../../includes/header.php'; ?>
     <!-- =========================
          HOVEDINNHOLD
          ========================= -->
@@ -33,6 +33,11 @@ requireRoles(['user']);
 
         <!-- Introduksjon -->
         <section class="hero">
+            <h1><br>Velkommen, <?= htmlspecialchars(
+                     $_SESSION['first_name'] ?? $_SESSION['username'] ?? 'bruker',
+                    ENT_QUOTES | ENT_SUBSTITUTE,
+                     'UTF-8'
+                    ) ?>!</h1>
 
             <h1>Hvordan kan vi hjelpe deg?</h1>
 

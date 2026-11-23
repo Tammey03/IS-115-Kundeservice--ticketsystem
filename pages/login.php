@@ -1,6 +1,17 @@
 <?php
 require_once __DIR__ . '/../config/auth.php';
 
+$destinations = [
+    'user' => 'bruker/mainUser.php',
+    'admin' => 'admin/mainAdmin.php',
+    'superadmin' => 'superadmin/mainSuperadmin.php',
+];
+$role = $_SESSION['role'] ?? '';
+if (isset($_SESSION['user_id'], $destinations[$role])) {
+    header('Location: ' . $destinations[$role], true, 303);
+    exit;
+}
+
 $error = '';
 $email = '';
 
@@ -34,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hash = $user ? $user['password_hash'] : '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.';
             $passwordMatches = password_verify($password, $hash);
 
-            if ($user && $passwordMatches && in_array($user['role'], ['user', 'admin', 'superadmin'], true)) {
+            if ($user && $passwordMatches && isset($destinations[$user['role']])) {
                 session_regenerate_id(true);
                 $_SESSION = [
                     'user_id' => $user['user_id'],
@@ -43,13 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'first_name' => $user['first_name'],
                     'last_name' => $user['last_name'],
                 ];
-                $destinations = [
-                    'user' => 'bruker/mainUser.php',
-                    'admin' => 'admin/mainAdmin.php',
-                    'superadmin' => 'superadmin/mainSuperadmin.php',
-                ];
-                $destination = $destinations[$user['role']];
-                header('Location: ' . $destination);
+                header('Location: ' . $destinations[$user['role']], true, 303);
                 exit;
             }
             $error = 'Feil e-post eller passord.';
@@ -65,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="no">
 
 <head>
+    <script src="../js/auth-history.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 

@@ -46,7 +46,7 @@ try {
     <!-- =========================
          NAVIGASJON
          ========================= -->
- <?php require __DIR__ . '/includes/headerAdmin.php'; ?>
+ <?php require __DIR__ . '/../../includes/headerAdmin.php'; ?>
 
     <main>
         <!-- =========================

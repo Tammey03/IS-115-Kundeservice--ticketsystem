@@ -18,7 +18,7 @@ requireRoles(['user']);
         Deretter går vi inn i css-mappen.
     -->
     <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="../../css/minProfil.css">
+    <link rel="stylesheet" href="../../css/minprofil.css">
 </head>
 
 <body>
@@ -26,7 +26,8 @@ requireRoles(['user']);
     <!-- =========================
          NAVIGASJON
          ========================= -->
-    <?php require __DIR__ . '/includes/header.php'; ?>
+    <?php require __DIR__ . '/../../includes/header.php'; ?>
+    <?php require __DIR__ . '/../../includes/logoutForm.php'; ?>
 
 
     <!-- =========================

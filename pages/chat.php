@@ -195,9 +195,9 @@ try {
 
     <?php
         if ($_SESSION['role'] === 'admin') {
-            require __DIR__ . '/admin/includes/headerAdmin.php';
+            require __DIR__ . '/../includes/headerAdmin.php';
         } else {
-             require __DIR__ . '/bruker/includes/header.php';
+             require __DIR__ . '/../includes/header.php';
         }       
     ?>
     <main>

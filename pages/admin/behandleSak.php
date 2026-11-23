@@ -77,7 +77,7 @@ if (!$ticketId) {
     <link rel="stylesheet" href="../../css/mineSaker.css?v=<?= filemtime(__DIR__ . '/../../css/mineSaker.css') ?>">
 </head>
 <body>
-    <?php require __DIR__ . '/includes/headerAdmin.php'; ?>
+    <?php require __DIR__ . '/../../includes/headerAdmin.php'; ?>
     <main>
         <section class="mine-saker">
             <div class="saker-header">

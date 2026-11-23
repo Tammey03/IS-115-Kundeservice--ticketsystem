@@ -19,13 +19,17 @@ requireRoles(['admin']);
     <!-- =========================
          NAVIGASJON
          ========================= -->
-   <?php require __DIR__ . '/includes/headerAdmin.php'; ?>
-
+   <?php require __DIR__ . '/../../includes/headerAdmin.php'; ?>
 <main>
       <!-- Introduksjon -->
         <section class="hero">
 
-            <h1>Velkommen til Kundeservice Admin</h1>
+            <h1><br>Velkommen, <?= htmlspecialchars(
+                     $_SESSION['first_name'] ?? $_SESSION['username'] ?? 'admin',
+                    ENT_QUOTES | ENT_SUBSTITUTE,
+                     'UTF-8'
+                    ) ?>!</h1>
+                    
 
             <p>
                 Dette er administrasjonspanelet for kundeservice. Her kan du
