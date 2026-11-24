@@ -60,11 +60,12 @@ try {
 
             <div class="saker-header">
                 <div>
-                   <h1><br>Velkommen, <?= htmlspecialchars(
-                     $_SESSION['first_name'] ?? $_SESSION['username'] ?? 'bruker',
-                    ENT_QUOTES | ENT_SUBSTITUTE,
-                     'UTF-8'
-                    ) ?>!</h1>
+                   <?php $firstName = currentUserFirstName($pdo); ?>
+                   <h1><br>Velkommen<?php if ($firstName !== ''): ?>, <?= htmlspecialchars(
+                        $firstName,
+                        ENT_QUOTES | ENT_SUBSTITUTE,
+                        'UTF-8'
+                    ) ?><?php endif; ?>!</h1>
                     
                     
                     

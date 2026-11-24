@@ -27,6 +27,22 @@ function validCsrfToken($token): bool
         && hash_equals($_SESSION['csrf_token'], $token);
 }
 
+function currentUserFirstName(?PDO $pdo = null): string
+{
+    if (!array_key_exists('first_name', $_SESSION) && isset($_SESSION['user_id'])) {
+        if ($pdo === null) {
+            require __DIR__ . '/database.php';
+        }
+
+        $statement = $pdo->prepare('SELECT first_name FROM users WHERE user_id = :user_id');
+        $statement->execute(['user_id' => $_SESSION['user_id']]);
+        $firstName = $statement->fetchColumn();
+        $_SESSION['first_name'] = is_string($firstName) ? trim($firstName) : '';
+    }
+
+    return $_SESSION['first_name'] ?? '';
+}
+
 function requireRoles(array $roles): void
 {
     if (!isset($_SESSION['user_id'])) {

@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         try {
             // Finn brukeren i databasen
             $stmt = $pdo->prepare(
-                "SELECT user_id, username, password_hash, role
+                "SELECT user_id, username, first_name, password_hash, role
                  FROM users
                  WHERE email = :email
                  LIMIT 1"
@@ -83,10 +83,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 isset($destinations[$user["role"]])
             ) {
                 session_regenerate_id(true);
+                $firstName = trim($user["first_name"] ?? "");
 
                 $_SESSION = [
                     "user_id" => $user["user_id"],
                     "username" => $user["username"],
+                    "first_name" => $firstName !== "" ? $firstName : null,
                     "role" => $user["role"]
                 ];
 
