@@ -40,6 +40,25 @@
     margin-bottom: 8px;
 }
 
+.attachment-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.attachment-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    overflow-wrap: anywhere;
+}
+
+.attachment-list button {
+    cursor: pointer;
+}
+
 .form-group input,
 .form-group select,
 .form-group textarea {

@@ -20,10 +20,11 @@ function hentMineTickets(PDO $pdo): array
 {
     requireRoles(['user']);
     $statement = $pdo->prepare(
-        'SELECT ticket_id, title, created_at, status, category, priority, description
-         FROM tickets
-         WHERE user_id = :user_id
-         ORDER BY created_at DESC, ticket_id DESC'
+        'SELECT t.ticket_id, t.title, t.created_at, t.status, t.category, t.priority,
+                t.description
+         FROM tickets AS t
+         WHERE t.user_id = :user_id
+         ORDER BY t.created_at DESC, t.ticket_id DESC'
     );
     $statement->execute(['user_id' => $_SESSION['user_id']]);
     return $statement->fetchAll();
@@ -35,11 +36,41 @@ function hentTicket(PDO $pdo, int $ticketId): ?array
 {
     requireRoles(['admin']);
     $statement = $pdo->prepare(
-        'SELECT ticket_id, title, created_at, status, category, priority, description
-         FROM tickets WHERE ticket_id = :ticket_id'
+        'SELECT t.ticket_id, t.title, t.created_at, t.status, t.category, t.priority,
+                t.description
+         FROM tickets AS t
+         WHERE t.ticket_id = :ticket_id'
     );
     $statement->execute(['ticket_id' => $ticketId]);
     return $statement->fetch() ?: null;
+}
+
+// Grupper vedlegg per sak uten å duplisere sakene i sakslisten.
+function hentTicketVedlegg(PDO $pdo, ?int $ticketId = null): array
+{
+    requireRoles(['user', 'admin']);
+    $sql = 'SELECT a.attachment_id, a.ticket_id, a.filename,
+                   (LEFT(a.content, 3) = 0xFFD8FF OR LEFT(a.content, 8) = 0x89504E470D0A1A0A) AS is_image
+            FROM ticket_attachments AS a
+            JOIN tickets AS t ON t.ticket_id = a.ticket_id
+            WHERE 1 = 1';
+    $parameters = [];
+    if ($_SESSION['role'] === 'user') {
+        $sql .= ' AND t.user_id = :user_id';
+        $parameters['user_id'] = $_SESSION['user_id'];
+    }
+    if ($ticketId !== null) {
+        $sql .= ' AND a.ticket_id = :ticket_id';
+        $parameters['ticket_id'] = $ticketId;
+    }
+
+    $statement = $pdo->prepare($sql . ' ORDER BY a.attachment_id');
+    $statement->execute($parameters);
+    $attachments = [];
+    foreach ($statement as $attachment) {
+        $attachments[$attachment['ticket_id']][] = $attachment;
+    }
+    return $attachments;
 }
 
 // Kontroller rollen også her, slik at funksjonen ikke kan brukes av vanlige brukere.

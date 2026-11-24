@@ -53,7 +53,7 @@ $this->description = trim($description);
     public function valider()
     {
         if (!empty($this->typeErrors)) {
-            return array_merge($this->typeErrors, $this->validerVedlegg());
+            return array_merge($this->typeErrors, self::validerVedlegg($this->attachment));
         }
 
         $errors = [];
@@ -90,13 +90,11 @@ $this->description = trim($description);
             $errors[] = "Ugyldig prioritet.";
         }
 
-        return array_merge($errors, $this->validerVedlegg());
+        return array_merge($errors, self::validerVedlegg($this->attachment));
     }
     //Denne funksjonen validerer vedlegget og returnerer en liste med eventuelle feil.
-    private function validerVedlegg()
+    public static function validerVedlegg($file): array
     {
-        $file = $this->attachment;
-
         // Vedlegg er valgfritt.
         if ($file === null) {
             return [];
@@ -112,6 +110,10 @@ $this->description = trim($description);
 
         if ($file['error'] !== UPLOAD_ERR_OK) {
             return ['Vedlegget kunne ikke lastes opp.'];
+        }
+
+        if (!is_string($file['name'] ?? null)) {
+            return ['Ugyldig filnavn.'];
         }
 
         $tmpName = $file['tmp_name'] ?? null;

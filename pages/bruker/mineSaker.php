@@ -23,6 +23,7 @@ try {
     Henter bare sakene til den innloggede brukeren, med nyeste først.
     Funksjonen bruker bruker-ID fra sesjonen for å avgrense resultatet.
     */
+    $attachmentsByTicket = hentTicketVedlegg($pdo);
     $tickets = hentMineTickets($pdo);
 } catch (PDOException $e) {
     /* Logger tekniske detaljer for feilsøking, mens brukeren får
@@ -38,6 +39,7 @@ try {
 
 <head>
     <script src="../../js/auth-history.js" defer></script>
+    <script src="../../js/ticketAttachmentGallery.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -148,6 +150,11 @@ try {
                                 <dd><?= htmlspecialchars($priorityLabels[$ticket['priority']] ?? $ticket['priority'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
                                 <dt>Beskrivelse</dt>
                                 <dd class="sak-description"><?= htmlspecialchars($ticket['description'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
+                                <?php $attachments = $attachmentsByTicket[$ticket['ticket_id']] ?? []; ?>
+                                <?php if ($attachments): ?>
+                                    <dt>Vedlegg</dt>
+                                    <dd><?php require __DIR__ . '/../../includes/ticketAttachmentPreview.php'; ?></dd>
+                                <?php endif; ?>
                             </dl>
                         </template>
                     </td>

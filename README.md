@@ -27,3 +27,7 @@ Dere står fritt til å velge struktur, design g hvilken funksjoner dere ønsker
 Dere må selv vurdere hvilke behov brukeren har, og hvordan systemet bør bygges for å gi en god brukeropplevelse
 Prosjekt skal vise at dere kan planlegge, utvikle og dokumentere en webapplikasjon.
 Det forventes at dere gjør egen tekninske vurdering og begrunne valgene dere tar underveis. 
+
+## Flere vedlegg per sak
+
+Kjør `config/migrations/001_multiple_ticket_attachments.sql` én gang i en eksisterende database før du tar i bruk filopplasting med flere vedlegg. Migreringen beholder filene som allerede er lagret.

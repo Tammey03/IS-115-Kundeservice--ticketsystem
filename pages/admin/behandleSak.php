@@ -23,6 +23,7 @@ if (!$ticketId) {
 } else {
     try {
         $ticket = hentTicket($pdo, $ticketId);
+        $attachmentsByTicket = $ticket === null ? [] : hentTicketVedlegg($pdo, $ticketId);
         if ($ticket === null) {
             http_response_code(404);
             $loadError = 'Fant ikke saken.';
@@ -70,6 +71,7 @@ if (!$ticketId) {
 <html lang="no">
 <head>
     <script src="../../js/auth-history.js" defer></script>
+    <script src="../../js/ticketAttachmentGallery.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Behandle sak – Kundeservice</title>
@@ -110,6 +112,11 @@ if (!$ticketId) {
                         <dd><?= htmlspecialchars($priorityLabels[$ticket['priority']] ?? $ticket['priority'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
                         <dt>Beskrivelse</dt>
                         <dd class="sak-description"><?= htmlspecialchars($ticket['description'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
+                        <?php $attachments = $attachmentsByTicket[$ticketId] ?? []; ?>
+                        <?php if ($attachments): ?>
+                            <dt>Vedlegg</dt>
+                            <dd><?php require __DIR__ . '/../../includes/ticketAttachmentPreview.php'; ?></dd>
+                        <?php endif; ?>
                     </dl>
                     <?php if ($confirmSave): ?>
                         <h3>Kontroller før du lagrer</h3>

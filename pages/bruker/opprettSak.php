@@ -4,7 +4,6 @@ Hensikten med denne filen er for at brukeren kan sendre inn en sak
 som det skal sendre videre til sakbehandlen.  
 Saksdata valideres med Sak-klassen før lagring i databasen.
 Siden krever en innlogget bruker med rollen user.
-Vedlegg støttes ikke fordi sikker fillagring mangler.
 */
 
 // Henter og fjerner bekreftelsen fra sesjonen slik at den vises én gang.
@@ -15,7 +14,8 @@ require_once __DIR__ . '/../../classes/Sak.php';
 $errors = [];
 // Engangsmelding etter videresending gjør at oppdatering ikke sender skjemaet på nytt.
 $createdTicketId = $_SESSION['created_ticket_id'] ?? null;
-unset($_SESSION['created_ticket_id']);
+$createdAttachmentCount = $_SESSION['created_attachment_count'] ?? 0;
+unset($_SESSION['created_ticket_id'], $_SESSION['created_attachment_count']);
 
 $title = "";
 $category = "";
@@ -34,19 +34,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
         $_POST["title"] ?? "",
         $_POST["category"] ?? "",
         $_POST["priority"] ?? "",
-        $_POST["description"] ?? "",
-        $_FILES["attachment"] ?? null
+        $_POST["description"] ?? ""
     );
 
     // Klassen kontrollerer feltene og returnerer eventuelle feil.
     $errors = $sak->valider();
 
-    /* Avviser vedlegg fordi sikker fillagring mangler.
-        Kontrollen må også gjøres på serveren fordi det deaktiverte
-        filfeltet i nettleseren kan omgås. */
-    if (isset($_FILES['attachment']) &&
-        ($_FILES['attachment']['error'] ?? null) !== UPLOAD_ERR_NO_FILE) {
-        $errors[] = 'Vedlegg kan ikke lagres ennå. Send saken uten vedlegg.';
+    $attachments = [];
+    $upload = $_FILES['attachment'] ?? null;
+    if ($upload !== null) {
+        $uploadErrors = $upload['error'] ?? null;
+        if (!is_array($uploadErrors)) {
+            $errors[] = 'Ugyldig vedlegg.';
+        } elseif (count($uploadErrors) > 5) {
+            $errors[] = 'Du kan legge ved maksimalt fem filer.';
+        } else {
+            foreach ($uploadErrors as $index => $error) {
+                $file = [
+                    'error' => $error,
+                    'name' => $upload['name'][$index] ?? null,
+                    'tmp_name' => $upload['tmp_name'][$index] ?? null,
+                ];
+                $fileErrors = Sak::validerVedlegg($file);
+                $errors = array_merge($errors, $fileErrors);
+                if (!$fileErrors && $error === UPLOAD_ERR_OK) {
+                    $attachments[] = $file;
+                }
+            }
+        }
     }
 
     // Beholder innholdet i skjemaet ved valideringsfeil,
@@ -62,6 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
         $priorities = ['Lav' => 'low', 'Normal' => 'medium', 'Høy' => 'high'];
 
         try {
+            $pdo->beginTransaction();
             /*Bruker parametere for å holde skjemadata adskilt fra SQL-koden
             /og beskytte mot SQL-injeksjon.*/
             
@@ -78,10 +94,47 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
                 'description' => $description,
             ]);
 
-            $_SESSION['created_ticket_id'] = (int) $pdo->lastInsertId();
-            header('Location: opprettSak.php', true, 303);
-            exit;
-        } catch (PDOException $e) {
+            $ticketId = (int) $pdo->lastInsertId();
+            if ($attachments) {
+                // Sett av plass til filnavnet og MySQL-protokollen i samme pakke.
+                $packetLimit = (int) $pdo->query('SELECT @@max_allowed_packet')->fetchColumn();
+                $statement = $pdo->prepare(
+                    'INSERT INTO ticket_attachments (ticket_id, filename, content)
+                     VALUES (:ticket_id, :filename, :content)'
+                );
+                $statement->bindValue(':ticket_id', $ticketId, PDO::PARAM_INT);
+
+                foreach ($attachments as $attachment) {
+                    $filename = basename(str_replace('\\', '/', $attachment['name']));
+                    $filename = mb_substr(mb_scrub($filename, 'UTF-8'), 0, 255, 'UTF-8');
+                    $content = file_get_contents($attachment['tmp_name']);
+                    if ($content === false) {
+                        throw new RuntimeException('Kunne ikke lese vedlegget.');
+                    }
+
+                    if (strlen($content) > $packetLimit - 4096) {
+                        $pdo->rollBack();
+                        $errors[] = 'Et vedlegg er for stort for databasen. Velg en mindre fil.';
+                        break;
+                    }
+
+                    $statement->bindValue(':filename', $filename);
+                    $statement->bindValue(':content', $content, PDO::PARAM_LOB);
+                    $statement->execute();
+                }
+            }
+
+            if (!$errors) {
+                $pdo->commit();
+                $_SESSION['created_ticket_id'] = $ticketId;
+                $_SESSION['created_attachment_count'] = count($attachments);
+                header('Location: opprettSak.php', true, 303);
+                exit;
+            }
+        } catch (RuntimeException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             error_log('Kunne ikke lagre sak: ' . $e->getMessage());
             http_response_code(500);
             $errors[] = 'Kunne ikke lagre saken. Prøv igjen senere.';
@@ -95,6 +148,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
 
 <head>
     <script src="../../js/auth-history.js" defer></script>
+    <script src="../../js/ticketAttachmentSelection.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -198,17 +252,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
 
             <div class="form-group">
                 <label for="attachment">Vedlegg</label>
-
-             
-                   <input
-                        type="file"
-                        id="attachment"
-                        name="attachment"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        aria-describedby="attachment-help"
-
-                    >
-                <p id="attachment-help">Vedlegg kan ikke lagres ennå. Send saken uten vedlegg.</p>
+                <input
+                    type="file"
+                    id="attachment"
+                    name="attachment[]"
+                    multiple
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    aria-describedby="attachment-help"
+                    data-max-files="5"
+                >
+                <p id="attachment-help">Valgfritt. Velg opptil fem PDF-, JPG- eller PNG-filer, opptil 5 MB per fil avhengig av databasegrensen.</p>
+                <p id="attachment-count" role="status"></p>
+                <ul id="attachment-list" class="attachment-list" hidden></ul>
             </div>
 
             <div class="form-actions">
@@ -226,6 +281,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"
     <div class="ticket-result" role="status">
         <h2>Saken er lagret</h2>
         <p>Saksnummer: #<?= (int) $createdTicketId ?></p>
+        <?php if ($createdAttachmentCount > 0): ?>
+            <p>Antall lagrede vedlegg: <?= (int) $createdAttachmentCount ?></p>
+        <?php endif; ?>
         <a href="mineSaker.php" class="details-link">Se mine saker</a>
     </div>
         <?php endif; ?>

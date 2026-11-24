@@ -30,6 +30,7 @@ try {
         }
     }
     $tickets = hentAlleTickets($pdo);
+    $attachmentsByTicket = hentTicketVedlegg($pdo);
     // Felleskøen viser bare saker som fortsatt venter på behandling.
     $tickets = array_filter($tickets, function ($ticket) {
         return $ticket['status'] === 'open';
@@ -46,6 +47,7 @@ try {
 
 <head>
     <script src="../../js/auth-history.js" defer></script>
+    <script src="../../js/ticketAttachmentGallery.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -149,6 +151,11 @@ try {
                                 <dd><?= htmlspecialchars($priorityLabels[$ticket['priority']] ?? $ticket['priority'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
                                 <dt>Beskrivelse</dt>
                                 <dd class="sak-description"><?= htmlspecialchars($ticket['description'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
+                                <?php $attachments = $attachmentsByTicket[$ticket['ticket_id']] ?? []; ?>
+                                <?php if ($attachments): ?>
+                                    <dt>Vedlegg</dt>
+                                    <dd><?php require __DIR__ . '/../../includes/ticketAttachmentPreview.php'; ?></dd>
+                                <?php endif; ?>
                             </dl>
                         </template>
                     </td>
