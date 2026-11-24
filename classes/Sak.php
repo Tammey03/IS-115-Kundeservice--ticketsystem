@@ -41,10 +41,12 @@ class Sak
         $priority = is_string($priority) ? $priority : '';
         $description = is_string($description) ? $description : '';
 
-        $this->title = trim($title);
-        $this->category = $category;
-        $this->priority = $priority === "" ? "Normal" : $priority;
-        $this->description = trim($description);
+
+$this->title = trim($title);
+$this->category = trim($category);
+$this->priority = trim($priority) === '' ? 'Normal' : trim($priority);
+$this->description = trim($description);
+
     }
     //Denne funksjonen validerer saksdataene og returnerer en liste med eventuelle feil. 
     //Hvis det er ingen feil, returnerer den listen som tom.

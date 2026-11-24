@@ -187,3 +187,42 @@
 .fill-test-account:hover {
     background-color: #dceaf6;
 }
+
+
+/* Hjelpetekst under passordfelt */
+.field-help {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 6px;
+}
+
+/* Feilmelding under felt */
+.field-error {
+    color: #b42318;
+    font-size: 0.85rem;
+    margin-top: 6px;
+}
+
+/* Marker felt med feil */
+.login-field input[aria-invalid="true"] {
+    border: 2px solid #b42318;
+}
+
+/* Vis/skjul passord */
+.password-toggle {
+    margin: 5px 0 15px;
+    font-size: 0.9rem;
+}
+
+.password-toggle label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.password-toggle input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
