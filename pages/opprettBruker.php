@@ -9,14 +9,16 @@ $errors = [];
 $passwordError = "";
 $success = false;
 
-$name = "";
+$firstName = "";
+$lastName = "";
 $username = "";
 $email = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Hent skjemadata
-    $name = formText("name");
+    $firstName = formText("first_name");
+    $lastName = formText("last_name");
     $username = formText("username");
     $email = formText("email");
 
@@ -38,10 +40,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     // Valider navn
-    if ($name === "") {
-        $errors[] = "Du må fylle ut navnet ditt.";
-    } elseif (mb_strlen($name) > 100) {
-        $errors[] = "Navnet kan ikke være lengre enn 100 tegn.";
+    if ($firstName === "") {
+        $errors[] = "Du må fylle ut fornavnet ditt.";
+    } elseif (mb_strlen($firstName) > 100) {
+        $errors[] = "Fornavnet kan ikke være lengre enn 100 tegn.";
+    }
+
+    if ($lastName === "") {
+        $errors[] = "Du må fylle ut etternavnet ditt.";
+    } elseif (mb_strlen($lastName) > 100) {
+        $errors[] = "Etternavnet kan ikke være lengre enn 100 tegn.";
     }
 
     // Valider brukernavn
@@ -88,19 +96,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             } else {
                 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-                $stmt = $pdo->prepare(
-                    "INSERT INTO users
-                     (name, username, email, password_hash, role)
-                     VALUES (:name, :username, :email, :password_hash, 'user')"
-                );
+                
+$stmt = $pdo->prepare(
+    "INSERT INTO users
+     (first_name, last_name, username, email, password_hash, role)
+     VALUES (:first_name, :last_name, :username, :email, :password_hash, 'user')"
+);
 
-                $stmt->execute([
-                    "name" => $name,
-                    "username" => $username,
-                    "email" => $email,
-                    "password_hash" => $passwordHash
-                ]);
-
+$stmt->execute([
+    "first_name" => $firstName,
+    "last_name" => $lastName,
+    "username" => $username,
+    "email" => $email,
+    "password_hash" => $passwordHash
+]);
                 $success = true;
             }
 
@@ -167,18 +176,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         value="<?= e(csrfToken()) ?>"
                     >
 
-                    <div class="login-field">
-                        <label for="name">Navn</label>
-                        <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            value="<?= e($name) ?>"
-                            autocomplete="name"
-                            maxlength="100"
-                            required
-                        >
-                    </div>
+                    
+<div class="login-field">
+    <label for="first_name">Fornavn</label>
+    <input
+        type="text"
+        id="first_name"
+        name="first_name"
+        value="<?= e($firstName) ?>"
+        autocomplete="given-name"
+        maxlength="100"
+        required
+    >
+</div>
+
+<div class="login-field">
+    <label for="last_name">Etternavn</label>
+    <input
+        type="text"
+        id="last_name"
+        name="last_name"
+        value="<?= e($lastName) ?>"
+        autocomplete="family-name"
+        maxlength="100"
+        required
+    >
+</div>
+
 
                     <div class="login-field">
                         <label for="username">Brukernavn</label>
