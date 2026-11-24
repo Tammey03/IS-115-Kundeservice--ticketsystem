@@ -202,3 +202,114 @@
 .logout-confirm:hover {
     background-color: #912018;
 }
+
+
+/* Redigering av profil */
+
+.profile-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0 32px;
+}
+
+.profile-edit-form label {
+    font-weight: 600;
+}
+
+.profile-edit-form input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font: inherit;
+    box-sizing: border-box;
+}
+
+.profile-edit-form input:focus-visible {
+    outline: 2px solid #1769aa;
+    outline-offset: 2px;
+}
+
+.profile-edit-form .button {
+    align-self: flex-start;
+    margin-top: 8px;
+    cursor: pointer;
+}
+
+.profile-information h3 {
+    margin-top: 28px;
+    font-size: 1.2rem;
+}
+
+.profile-success {
+    padding: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #86c69a;
+    border-radius: 6px;
+    background: #eefaf1;
+    color: #176331;
+}
+
+.profile-error {
+    padding: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #e5a0a0;
+    border-radius: 6px;
+    background: #fff1f1;
+    color: #9b2020;
+}
+
+.profile-error ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+/* Vis og skjul profilredigering */
+#profile-details[hidden],
+#profile-edit[hidden] {
+    display: none;
+}
+
+/* Knapper for profilredigering */
+.profile-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+#edit-profile {
+    margin-top: 20px;
+}
+
+#cancel-profile {
+    background-color: #e5e7eb;
+    color: #1f2937;
+    border: 1px solid #cbd5e1;
+}
+
+#cancel-profile:hover {
+    background-color: #d1d5db;
+}
+
+/* Vis og skjul passordskjema */
+#password-details[hidden],
+#password-edit[hidden] {
+    display: none;
+}
+
+#password-details {
+    margin-top: 24px;
+}
+
+#cancel-password {
+    background-color: #e5e7eb;
+    color: #1f2937;
+    border: 1px solid #cbd5e1;
+    margin-left: 10px;
+}
+
+#cancel-password:hover {
+    background-color: #d1d5db;
+}

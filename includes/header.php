@@ -10,6 +10,7 @@ Headeren må inkluderes før innhold sendes til nettleseren,
 fordi tilgangskontrollen kan kreve videresending.
 */
 require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../config/helpers.php';
 // Krever at brukeren er innlogget med rollen user før navigasjonen vises.
 requireRoles(['user']);
 ?>
@@ -32,6 +33,7 @@ requireRoles(['user']);
                 <a href="/IS-115-Kundeservice--ticketsystem/pages/bruker/opprettSak.php">Opprett sak</a>
 
                 <a href="/IS-115-Kundeservice--ticketsystem/pages/bruker/minProfilUser.php">Min profil</a>
+                <?php require __DIR__ . '/logoutForm.php'; ?>
 
 
             </div>
