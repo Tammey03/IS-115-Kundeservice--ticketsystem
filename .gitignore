@@ -1,0 +1,12 @@
+# Lokal databasekonfigurasjon og miljøvariabler
+/config/database.php
+.env
+.env.*
+!.env.example
+
+# Lokale systemfiler
+.DS_Store
+
+# Private lokale testkontoer
+/config/test-accounts.php
+/config/opprettTestBruker.php

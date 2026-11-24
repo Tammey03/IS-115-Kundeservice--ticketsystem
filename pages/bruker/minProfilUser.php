@@ -1,7 +1,12 @@
+<?php
+require_once __DIR__ . '/../../config/auth.php';
+requireRoles(['user']);
+?>
 <!DOCTYPE html>
 <html lang="no">
 
 <head>
+    <script src="../../js/auth-history.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -13,7 +18,7 @@
         Deretter går vi inn i css-mappen.
     -->
     <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="../../css/minProfil.css">
+    <link rel="stylesheet" href="../../css/minprofil.css">
 </head>
 
 <body>
@@ -21,7 +26,8 @@
     <!-- =========================
          NAVIGASJON
          ========================= -->
-    <?php require __DIR__ . '/includes/header.php'; ?>
+    <?php require __DIR__ . '/../../includes/header.php'; ?>
+    <?php require __DIR__ . '/../../includes/logoutForm.php'; ?>
 
 
     <!-- =========================

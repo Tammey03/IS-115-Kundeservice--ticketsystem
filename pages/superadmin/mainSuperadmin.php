@@ -1,0 +1,43 @@
+<?php
+require_once __DIR__ . '/../../config/auth.php';
+requireRoles(['superadmin']);
+?>
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <script src="../../js/auth-history.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superadmin | Kundeservice</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <a href="mainSuperadmin.php" class="logo">Kundeservice</a>
+            <div class="nav-links">
+                <a href="mainSuperadmin.php">Hjem</a>
+                <a href="minProfilSuperadmin.php">Min profil</a>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <section class="hero">
+            <h1>Superadmin</h1>
+            <p>Overordnet administrasjon av brukere og saker.</p>
+        </section>
+        <section class="main-content">
+            <div class="service-card">
+                <h2>Administrere brukere</h2>
+                <p>Her kommer oversikt, redigering og sletting av gamle brukere.</p>
+                <p>Funksjonen er ikke tilgjengelig ennå.</p>
+            </div>
+            <div class="service-card">
+                <h2>Administrere saker</h2>
+                <p>Egen saksadministrasjon for superadmin er ikke tilgjengelig ennå.</p>
+            </div>
+        </section>
+    </main>
+    <script src="../../js/navBar.js"></script>
+</body>
+</html>

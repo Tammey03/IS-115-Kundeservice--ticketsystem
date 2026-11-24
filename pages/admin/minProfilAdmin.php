@@ -1,11 +1,16 @@
+<?php
+require_once __DIR__ . '/../../config/auth.php';
+requireRoles(['admin']);
+?>
 <!DOCTYPE html>
 <html lang="no">
 
 <head>
+    <script src="../../js/auth-history.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Forside for brukere</title>
+    <title>Min profil | Admin</title>
 
     <!--
         ../../ betyr at vi går to mapper tilbake:
@@ -13,12 +18,13 @@
         Deretter går vi inn i css-mappen.
     -->
     <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="../../css/minProfil.css">
+    <link rel="stylesheet" href="../../css/minprofil.css">
 </head>
 
 <body>
 
-   <?php require __DIR__ . '/includes/headerAdmin.php'; ?>
+   <?php require __DIR__ . '/../../includes/headerAdmin.php'; ?>
+    <?php require __DIR__ . '/../../includes/logoutForm.php'; ?>
 
 
     <!-- =========================
@@ -45,8 +51,8 @@
                 </div>
 
                 <div class="profile-name">
-                    <h2>Navn på kunde</h2>
-                    <p>Kunde</p>
+                    <h2>Navn på saksbehandler</h2>
+                    <p>Admin</p>
                 </div>
 
             </div>
@@ -57,7 +63,7 @@
 
                 <div class="profile-row">
                     <span class="profile-label">Navn</span>
-                    <span>Navn på kunde</span>
+                    <span>Navn på saksbehandler</span>
                 </div>
 
                 <div class="profile-row">

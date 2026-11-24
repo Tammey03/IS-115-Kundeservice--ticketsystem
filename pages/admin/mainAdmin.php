@@ -1,7 +1,12 @@
+<?php
+require_once __DIR__ . '/../../config/auth.php';
+requireRoles(['admin']);
+?>
 <!DOCTYPE html>
 <html lang="no">
 
 <head>
+    <script src="../../js/auth-history.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -14,17 +19,22 @@
     <!-- =========================
          NAVIGASJON
          ========================= -->
-   <?php require __DIR__ . '/includes/headerAdmin.php'; ?>
-
+   <?php require __DIR__ . '/../../includes/headerAdmin.php'; ?>
 <main>
       <!-- Introduksjon -->
         <section class="hero">
 
-            <h1>Velkommen til Kundeservice Admin</h1>
+            <h1><br>Velkommen, <?= htmlspecialchars(
+                     $_SESSION['first_name'] ?? $_SESSION['username'] ?? 'admin',
+                    ENT_QUOTES | ENT_SUBSTITUTE,
+                     'UTF-8'
+                    ) ?>!</h1>
+                    
 
             <p>
                 Dette er administrasjonspanelet for kundeservice. Her kan du
                 se og behandle alle saker som er opprettet av brukere.
+            </p>
 
         </section>
 
@@ -81,26 +91,23 @@
 
             </div>
 
-
-            <!-- Chat -->
+            <!-- =========================
+                 MELDINGER
+                Samtaler om saker som er tildelt saksbehandleren.
+             ========================= -->
             <div class="service-card">
-
-                <h2>Chat med kundeservice</h2>
+                <h2>Meldinger</h2>
 
                 <p>
-                    Chat direkte med kundeservice dersom
-                    du trenger hjelp.
+                    Les og svar på meldinger fra kunder
+                    i sakene du er tildelt.
                 </p>
 
-                <!--
-                    chat.php ligger i pages-mappen.
-                    Derfor går vi én mappe tilbake.
-                -->
                 <a href="../chat.php" class="button">
-                    Start chat
+                     Åpne meldinger
                 </a>
-
             </div>
+
 
         </section>
 

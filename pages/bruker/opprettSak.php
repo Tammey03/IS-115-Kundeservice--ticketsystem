@@ -1,15 +1,34 @@
 <?php
+/*
+Hensikten med denne filen er for at brukeren kan sendre inn en sak
+som det skal sendre videre til sakbehandlen.  
+Saksdata valideres med Sak-klassen før lagring i databasen.
+Siden krever en innlogget bruker med rollen user.
+Vedlegg støttes ikke fordi sikker fillagring mangler.
+*/
+
+// Henter og fjerner bekreftelsen fra sesjonen slik at den vises én gang.
+require_once __DIR__ . '/../../config/auth.php';
+requireRoles(['user']);
 require_once __DIR__ . '/../../classes/Sak.php';
 
 $errors = [];
-$success = false;
+// Engangsmelding etter videresending gjør at oppdatering ikke sender skjemaet på nytt.
+$createdTicketId = $_SESSION['created_ticket_id'] ?? null;
+unset($_SESSION['created_ticket_id']);
 
 $title = "";
 $category = "";
-$priority = "";
+$priority = "Normal";
 $description = "";
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+/* Kontrollerer CSRF-token før saksdata behandles for å beskytte 
+mot at andre nettsider sender inn skjemaet på brukerens vegne. */
+
+if ($_SERVER["REQUEST_METHOD"] === "POST" && !validCsrfToken($_POST["csrf_token"] ?? null)) {
+    http_response_code(403);
+    $errors[] = "Ugyldig skjema. Last siden på nytt og prøv igjen.";
+} elseif ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Oppretter en sak med informasjonen fra skjemaet.
     $sak = new Sak(
         $_POST["title"] ?? "",
@@ -21,13 +40,53 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Klassen kontrollerer feltene og returnerer eventuelle feil.
     $errors = $sak->valider();
-    $success = empty($errors);
 
-    // HTML-en nedenfor bruker disse variablene til å vise resultatet.
+    /* Avviser vedlegg fordi sikker fillagring mangler.
+        Kontrollen må også gjøres på serveren fordi det deaktiverte
+        filfeltet i nettleseren kan omgås. */
+    if (isset($_FILES['attachment']) &&
+        ($_FILES['attachment']['error'] ?? null) !== UPLOAD_ERR_NO_FILE) {
+        $errors[] = 'Vedlegg kan ikke lagres ennå. Send saken uten vedlegg.';
+    }
+
+    // Beholder innholdet i skjemaet ved valideringsfeil,
+    // slik at brukeren slipper å fylle ut alt på nytt.
     $title = $sak->title;
     $category = $sak->category;
     $priority = $sak->priority;
     $description = $sak->description;
+
+    if (empty($errors)) {
+        require_once __DIR__ . '/../../config/database.php';
+        // Skjemaet viser norske valg, mens databasen bruker engelske verdier.
+        $priorities = ['Lav' => 'low', 'Normal' => 'medium', 'Høy' => 'high'];
+
+        try {
+            /*Bruker parametere for å holde skjemadata adskilt fra SQL-koden
+            /og beskytte mot SQL-injeksjon.*/
+            
+            $statement = $pdo->prepare(
+                'INSERT INTO tickets (user_id, title, category, priority, description)
+                 VALUES (:user_id, :title, :category, :priority, :description)'
+            );
+            $statement->execute([
+                // Eieren hentes fra innloggingen, aldri fra skjemadata.
+                'user_id' => $_SESSION['user_id'],
+                'title' => $title,
+                'category' => $category,
+                'priority' => $priorities[$priority],
+                'description' => $description,
+            ]);
+
+            $_SESSION['created_ticket_id'] = (int) $pdo->lastInsertId();
+            header('Location: opprettSak.php', true, 303);
+            exit;
+        } catch (PDOException $e) {
+            error_log('Kunne ikke lagre sak: ' . $e->getMessage());
+            http_response_code(500);
+            $errors[] = 'Kunne ikke lagre saken. Prøv igjen senere.';
+        }
+    }
 }
 ?>
 
@@ -35,6 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="no">
 
 <head>
+    <script src="../../js/auth-history.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -46,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <body>
     
-    <?php require __DIR__ . '/includes/header.php'; ?>
+     <?php require __DIR__ . '/../../includes/header.php'; ?>
 
     <main>
         <!-- =========================
@@ -61,20 +121,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 Fyll ut informasjonen under for å sende inn en ny henvendelse.
             </p>
         </div>
-<?php if (!empty($errors)): ?>
+        <?php if (!empty($errors)): ?>
 
-    <div class="ticket-errors">
-        <h3>Det oppstod noen feil:</h3>
+        <div class="ticket-errors">
+            <h3>Det oppstod noen feil:</h3>
 
-        <ul>
-            <?php foreach ($errors as $error): ?>
-                <li><?= htmlspecialchars($error) ?></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
+            <ul>
 
-<?php endif; ?>
+                 <?php // Bruker htmlspecialchars for å unngå XSS-angrep.  ?>
+                 <?php foreach ($errors as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
+                <?php endforeach; ?>
+            </ul>
+         </div>
+
+        <?php endif; ?>
+
         <form class="ticket-form" method="POST" action="opprettSak.php" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
 
             <div class="form-group">
                 <label for="title">Tittel</label>
@@ -83,6 +147,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     id="title"
                     name="title"
                     placeholder="Kort beskrivelse av problemet"
+                    value="<?= htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
                     maxlength="150"
                    
                 >
@@ -95,10 +160,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     <select id="category" name="category" >
                         <option value="">Velg kategori</option>
-                        <option>Innlogging</option>
-                        <option>Betaling</option>
-                        <option>Teknisk problem</option>
-                        <option>Annet</option>
+                        <option<?= $category === 'Vann og avløp' ? ' selected' : '' ?>>Vann og avløp</option>
+                        <option<?= $category === 'Strøm og varme' ? ' selected' : '' ?>>Strøm og varme</option>
+                        <option<?= $category === 'Internett' ? ' selected' : '' ?>>Internett</option>
+                        <option<?= $category === 'Skader og vedlikehold' ? ' selected' : '' ?>>Skader og vedlikehold</option>
+                        <option<?= $category === 'Nøkler og adgang' ? ' selected' : '' ?>>Nøkler og adgang</option>
+                        <option<?= $category === 'Renhold og fellesområder' ? ' selected' : '' ?>>Renhold og fellesområder</option>
+                        <option<?= $category === 'Støy og naboforhold' ? ' selected' : '' ?>>Støy og naboforhold</option>
+                        <option<?= $category === 'Husleie og kontrakt' ? ' selected' : '' ?>>Husleie og kontrakt</option>
+                        <option<?= $category === 'Annet' ? ' selected' : '' ?>>Annet</option>
                     </select>
                 </div>
 
@@ -106,9 +176,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <label for="priority">Prioritet</label>
 
                     <select id="priority" name="priority">
-                        <option>Lav</option>
-                        <option selected>Normal</option>
-                        <option>Høy</option>
+                        <option<?= $priority === 'Lav' ? ' selected' : '' ?>>Lav</option>
+                        <option<?= $priority === 'Normal' ? ' selected' : '' ?>>Normal</option>
+                        <option<?= $priority === 'Høy' ? ' selected' : '' ?>>Høy</option>
                     </select>
                 </div>
 
@@ -123,7 +193,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     rows="7"
                     placeholder="Beskriv problemet så tydelig som mulig..."
               
-                ></textarea>
+                ><?= htmlspecialchars($description, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></textarea>
             </div>
 
             <div class="form-group">
@@ -135,8 +205,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         id="attachment"
                         name="attachment"
                         accept=".pdf,.jpg,.jpeg,.png"
+                        aria-describedby="attachment-help"
 
                     >
+                <p id="attachment-help">Vedlegg kan ikke lagres ennå. Send saken uten vedlegg.</p>
             </div>
 
             <div class="form-actions">
@@ -150,37 +222,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
         </form>
-        <?php if ($success): ?>
-
-    <div class="ticket-result">
-        <h2>Skjemaet er mottatt!</h2>
-
-        <p><strong>Tittel:</strong>
-            <?= htmlspecialchars($title) ?>
-        </p>
-
-        <p><strong>Kategori:</strong>
-            <?= htmlspecialchars($category) ?>
-        </p>
-
-        <p><strong>Prioritet:</strong>
-            <?= htmlspecialchars($priority) ?>
-        </p>
-
-        <p><strong>Beskrivelse:</strong>
-            <?= nl2br(htmlspecialchars($description)) ?>
-        </p>
-        <?php if (
-            isset($_FILES['attachment']['error']) &&
-            $_FILES['attachment']['error'] === UPLOAD_ERR_OK
-             ): ?>
-            <p><strong>Vedlegg:</strong> Vedlegget er godkjent.</p>
-            <?php else: ?>
-            <p><strong>Vedlegg:</strong> Ingen fil valgt.</p>
-            <?php endif; ?>
+        <?php if ($createdTicketId !== null): ?>
+    <div class="ticket-result" role="status">
+        <h2>Saken er lagret</h2>
+        <p>Saksnummer: #<?= (int) $createdTicketId ?></p>
+        <a href="mineSaker.php" class="details-link">Se mine saker</a>
     </div>
-
-<?php endif; ?>
+        <?php endif; ?>
 
     </section>
 
