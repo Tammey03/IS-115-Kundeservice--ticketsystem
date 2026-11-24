@@ -22,7 +22,8 @@ try {
 
     // Fjern ferdigbehandlede saker fra listen.
     $tickets = array_filter($tickets, function ($ticket) {
-        return $ticket['status'] !== 'closed';
+        return $ticket['status'] !== 'closed'
+        && (int) $ticket['assigned_to'] === (int) $_SESSION['user_id'];
     });
     
 } catch (PDOException $e) {
@@ -36,6 +37,7 @@ try {
 <html lang="no">
 
 <head>
+    <script src="../../js/auth-history.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -48,7 +50,7 @@ try {
 
 <body>
     
-   <?php require __DIR__ . '/includes/headerAdmin.php'; ?>
+   <?php require __DIR__ . '/../../includes/headerAdmin.php'; ?>
 
     <main>
      <section class="hero">
@@ -58,6 +60,11 @@ try {
                 Som admin skal du kunne behandle og svare på brukernes saker.
                 Saksbehandling er ikke tilgjengelig ennå.
             </p>
+
+            <?php if (isset($_SESSION['ticket_message'])): ?>
+                <p role="status"><?= htmlspecialchars($_SESSION['ticket_message'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+                <?php unset($_SESSION['ticket_message']); ?>
+            <?php endif; ?>
 
             <div class="table-container">
              <table class="saker-table">

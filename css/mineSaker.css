@@ -236,6 +236,16 @@
     flex-wrap: wrap;
 }
 
+.sak-rad-knapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sak-rad-knapper form {
+    margin: 0;
+}
+
 .sak-redigering {
     display: flex;
     align-items: center;
@@ -249,4 +259,19 @@
     border: 1px solid #ccc;
     border-radius: 6px;
     font: inherit;
+}
+
+/* Samme form og størrelse som Se sak, med egen farge. */
+.button.messages-link {
+    background-color: #0f766e;
+    color: white;
+}
+
+.button.messages-link:hover {
+    background-color: #115e59;
+}
+
+.button.messages-link:focus-visible {
+    outline: 3px solid #0f766e;
+    outline-offset: 3px;
 }

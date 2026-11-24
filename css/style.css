@@ -86,8 +86,7 @@ body {
 
 
 /* Alle lenkene i navbaren */
-.nav-links a,
-.nav-links .logout-button {
+.nav-links a {
 
     color: white;
 
@@ -102,8 +101,7 @@ body {
 
 
 /* Når brukeren holder musen over lenken */
-.nav-links a:hover,
-.nav-links .logout-button:hover {
+.nav-links a:hover {
 
     background-color: #294d70;
 }
@@ -331,17 +329,3 @@ body {
     }
 
 }
-
-/* Utlogging er et skjema, med samme utseende som navigasjonslenkene. */
-.logout-form {
-    margin: 0;
-    display: flex;
-}
-
-.nav-links .logout-button {
-    background: transparent;
-    border: 0;
-    font: inherit;
-    cursor: pointer;
-}
-

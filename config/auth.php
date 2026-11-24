@@ -9,7 +9,9 @@ session_set_cookie_params([
     'samesite' => 'Lax',
 ]);
 session_start();
-header('Cache-Control: no-store');
+header('Cache-Control: no-store, no-cache, must-revalidate, private');
+header('Pragma: no-cache');
+header('Expires: 0');
 
 function csrfToken(): string
 {

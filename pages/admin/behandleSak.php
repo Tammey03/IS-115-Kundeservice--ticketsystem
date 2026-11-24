@@ -55,7 +55,7 @@ if (!$ticketId) {
             }
             if ($saveError === '' && !$confirmSave) {
                 $_SESSION['ticket_message'] = 'Endringen er lagret.';
-                header('Location: behandleSak.php?saksnummer=' . $ticketId);
+                header('Location: behandleSaker.php', true, 303);
                 exit;
             }
         }
@@ -69,6 +69,7 @@ if (!$ticketId) {
 <!DOCTYPE html>
 <html lang="no">
 <head>
+    <script src="../../js/auth-history.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Behandle sak – Kundeservice</title>
@@ -76,7 +77,7 @@ if (!$ticketId) {
     <link rel="stylesheet" href="../../css/mineSaker.css?v=<?= filemtime(__DIR__ . '/../../css/mineSaker.css') ?>">
 </head>
 <body>
-    <?php require __DIR__ . '/includes/headerAdmin.php'; ?>
+    <?php require __DIR__ . '/../../includes/headerAdmin.php'; ?>
     <main>
         <section class="mine-saker">
             <div class="saker-header">

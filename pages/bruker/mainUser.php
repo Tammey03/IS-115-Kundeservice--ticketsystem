@@ -6,6 +6,7 @@ requireRoles(['user']);
 <html lang="no">
 
 <head>
+    <script src="../../js/auth-history.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -24,7 +25,7 @@ requireRoles(['user']);
     <!-- =========================
          NAVIGASJON
          ========================= -->
-     <?php require __DIR__ . '/includes/header.php'; ?>
+     <?php require __DIR__ . '/../../includes/header.php'; ?>
     <!-- =========================
          HOVEDINNHOLD
          ========================= -->
@@ -32,6 +33,11 @@ requireRoles(['user']);
 
         <!-- Introduksjon -->
         <section class="hero">
+            <h1><br>Velkommen, <?= htmlspecialchars(
+                     $_SESSION['first_name'] ?? $_SESSION['username'] ?? 'bruker',
+                    ENT_QUOTES | ENT_SUBSTITUTE,
+                     'UTF-8'
+                    ) ?>!</h1>
 
             <h1>Hvordan kan vi hjelpe deg?</h1>
 
@@ -98,25 +104,20 @@ requireRoles(['user']);
             </div>
 
 
-            <!-- Chat -->
-            <div class="service-card">
+         <!-- Chat -->
+  
+        <div class="service-card">
+         <h2>Meldinger</h2>
 
-                <h2>Chat med kundeservice</h2>
+         <p>
+             Les og svar på meldinger fra kunder
+            i sakene du er tildelt.
+         </p>
 
-                <p>
-                    Chat direkte med kundeservice dersom
-                    du trenger hjelp.
-                </p>
-
-                <!--
-                    chat.php ligger i pages-mappen.
-                    Derfor går vi én mappe tilbake.
-                -->
-                <a href="../chat.php" class="button">
-                    Start chat
-                </a>
-
-            </div>
+            <a href="../chat.php" class="button">
+             Åpne meldinger
+            </a>
+        </div>
 
         </section>
 
