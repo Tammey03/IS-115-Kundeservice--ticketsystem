@@ -1,4 +1,13 @@
 <?php
+/*
+Filen er en saksoversikt for brukere, 
+og viser en tabell med alle sakene som er sendt inn av den innloggede brukeren.
+
+Saksdetaljene åpnes i en dialog som krever JavaScript.
+Alle brukerens saker hentes samtidig uten sideinndeling,
+noe som kan bli mindre effektivt ved mange saker.
+*/
+
 require_once __DIR__ . '/../../config/auth.php';
 requireRoles(['user']);
 require_once __DIR__ . '/../../config/database.php';
@@ -8,9 +17,16 @@ require_once __DIR__ . '/../../includes/ticketLabels.php';
 $tickets = [];
 $loadError = '';
 
+
 try {
+    /* 
+    Henter bare sakene til den innloggede brukeren, med nyeste først.
+    Funksjonen bruker bruker-ID fra sesjonen for å avgrense resultatet.
+    */
     $tickets = hentMineTickets($pdo);
 } catch (PDOException $e) {
+    /* Logger tekniske detaljer for feilsøking, mens brukeren får
+         en generell melding som ikke avslører databaseinformasjon. */
     error_log('Kunne ikke hente mine saker: ' . $e->getMessage());
     http_response_code(500);
     $loadError = 'Kunne ikke hente sakene dine. Prøv igjen senere.';
@@ -21,6 +37,7 @@ try {
 <html lang="no">
 
 <head>
+    <script src="../../js/auth-history.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -33,7 +50,7 @@ try {
 
 <body>
     
-     <?php require __DIR__ . '/includes/header.php'; ?>
+    <?php require __DIR__ . '/../../includes/header.php'; ?>
 
     
 
@@ -43,7 +60,16 @@ try {
 
             <div class="saker-header">
                 <div>
-                    <h1><br>Velkommen, <?= htmlspecialchars($_SESSION['username'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>!</h1>
+                   <h1><br>Velkommen, <?= htmlspecialchars(
+                     $_SESSION['first_name'] ?? $_SESSION['username'] ?? 'bruker',
+                    ENT_QUOTES | ENT_SUBSTITUTE,
+                     'UTF-8'
+                    ) ?>!</h1>
+                    
+                    
+                    
+                    
+                    
                     <h1>Mine saker</h1>
                     <p>Her finner du oversikt over sakene du har sendt inn.</p>
                 </div>
@@ -71,7 +97,10 @@ try {
 
             <tbody>
 
-                <?php // Vis hentefeil før vi sjekker om sakslisten er tom. ?>
+                <?php
+                // Skiller databasefeil fra en tom saksliste, slik at en feil
+                // ikke vises som om brukeren mangler saker.
+                ?>
                 <?php if ($loadError !== ''): ?>
                 <tr>
                     <!-- colspan dekker alle fem kolonner; role="alert" varsler skjermlesere. -->
@@ -98,6 +127,11 @@ try {
                         </span>
                     </td>
                     <td>
+                        <a href="../chat.php?saksnummer=<?= (int) $ticket['ticket_id'] ?>"
+                            class="button details-link messages-link"
+                        >
+                             Meldinger
+                        </a>
                         <button type="button" class="button details-link" data-ticket-dialog="sak-<?= (int) $ticket['ticket_id'] ?>" aria-haspopup="dialog" aria-label="Se sak #<?= (int) $ticket['ticket_id'] ?>">Se sak</button>
                         <?php // Innholdet vises først når JavaScript kopierer det til dialogen. ?>
                         <template id="sak-<?= (int) $ticket['ticket_id'] ?>">

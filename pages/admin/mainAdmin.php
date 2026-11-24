@@ -6,6 +6,7 @@ requireRoles(['admin']);
 <html lang="no">
 
 <head>
+    <script src="../../js/auth-history.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -18,13 +19,17 @@ requireRoles(['admin']);
     <!-- =========================
          NAVIGASJON
          ========================= -->
-   <?php require __DIR__ . '/includes/headerAdmin.php'; ?>
-
+   <?php require __DIR__ . '/../../includes/headerAdmin.php'; ?>
 <main>
       <!-- Introduksjon -->
         <section class="hero">
 
-            <h1>Velkommen til Kundeservice Admin</h1>
+            <h1><br>Velkommen, <?= htmlspecialchars(
+                     $_SESSION['first_name'] ?? $_SESSION['username'] ?? 'admin',
+                    ENT_QUOTES | ENT_SUBSTITUTE,
+                     'UTF-8'
+                    ) ?>!</h1>
+                    
 
             <p>
                 Dette er administrasjonspanelet for kundeservice. Her kan du
@@ -84,6 +89,23 @@ requireRoles(['admin']);
                     Se min profil
                 </a>
 
+            </div>
+
+            <!-- =========================
+                 MELDINGER
+                Samtaler om saker som er tildelt saksbehandleren.
+             ========================= -->
+            <div class="service-card">
+                <h2>Meldinger</h2>
+
+                <p>
+                    Les og svar på meldinger fra kunder
+                    i sakene du er tildelt.
+                </p>
+
+                <a href="../chat.php" class="button">
+                     Åpne meldinger
+                </a>
             </div>
 
 
