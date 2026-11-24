@@ -3,18 +3,11 @@ require_once __DIR__ . '/../../config/auth.php';
 requireRoles(['admin']);
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/tickets.php';
+require_once __DIR__ . '/../../includes/ticketLabels.php';
 
 $tickets = [];
 $loadError = '';
-$statusClasses = [
-    'open' => 'status-apen',
-    'in_progress' => 'status-behandles',
-    'closed' => 'status-lost',
-];
 
-// Oversett databasens statusverdier til norsk i visningen.
-$statusLabels = ['open' => 'Mottatt', 'in_progress' => 'Under behandling', 'closed' => 'Løst'];
-$priorityLabels = ['low' => 'Lav', 'medium' => 'Normal', 'high' => 'Høy'];
 
 try {
     $tickets = hentAlleTickets($pdo);
