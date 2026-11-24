@@ -24,11 +24,12 @@ requireRoles(['admin']);
       <!-- Introduksjon -->
         <section class="hero">
 
-            <h1><br>Velkommen, <?= htmlspecialchars(
-                     $_SESSION['first_name'] ?? $_SESSION['username'] ?? 'admin',
-                    ENT_QUOTES | ENT_SUBSTITUTE,
-                     'UTF-8'
-                    ) ?>!</h1>
+            <?php $firstName = currentUserFirstName(); ?>
+            <h1><br>Velkommen<?php if ($firstName !== ''): ?>, <?= htmlspecialchars(
+                        $firstName,
+                        ENT_QUOTES | ENT_SUBSTITUTE,
+                        'UTF-8'
+                    ) ?><?php endif; ?>!</h1>
                     
 
             <p>
