@@ -4,6 +4,7 @@ requireRoles(['admin']);
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/tickets.php';
 require_once __DIR__ . '/../../includes/ticketLabels.php';
+require_once __DIR__ . '/../../config/helpers.php';
 
 $tickets = [];
 $loadError = '';
@@ -72,8 +73,8 @@ try {
         <section class="mine-saker">
             <div class="saker-header">
                 <div>
-                    <h1>Alle saker</h1>
-                    <p>Her finner du oversikt over alle sakene som er sendt inn av brukere.</p>
+                    <h1>Nye saker</h1>
+<p>Her finner du saker som venter på behandling.</p>
                 </div>
             </div>
 
@@ -86,10 +87,12 @@ try {
             <thead>
                 <tr>
                     <th>Saksnummer</th>
-                    <th>Tittel</th>
-                    <th>Sendt inn</th>
-                    <th>Status</th>
-                    <th>Detaljer</th>
+<th>Tittel</th>
+<th>Kategori</th>
+<th>Prioritet</th>
+<th>Sendt inn</th>
+<th>Status</th>
+<th>Detaljer</th>
                 </tr>
             </thead>
 
@@ -99,11 +102,11 @@ try {
                 <?php if ($loadError !== ''): ?>
                 <tr>
                     <!-- colspan dekker alle fem kolonner; role="alert" varsler skjermlesere. -->
-                    <td colspan="5" role="alert"><?= htmlspecialchars($loadError, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+                    <td colspan="7" role="alert"><?= htmlspecialchars($loadError, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
                 </tr>
                 <?php elseif (empty($tickets)): ?>
                 <tr>
-                    <td colspan="5">Ingen saker venter på behandling.</td>
+                    <td colspan="7">Ingen saker venter på behandling.</td>
                 </tr>
                 <?php else: ?>
                 <?php // Lag én tabellrad for hver sak som ble hentet fra databasen. ?>
@@ -113,6 +116,15 @@ try {
                     <td>#<?= (int) $ticket['ticket_id'] ?></td>
                     <?php // htmlspecialchars viser tekst trygt, uten å tolke den som HTML. ?>
                     <td><?= htmlspecialchars($ticket['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+
+<td><?= e($ticket['category']) ?></td>
+
+<td>
+    <span class="priority priority-<?= e($ticket['priority']) ?>">
+        <?= e($priorityLabels[$ticket['priority']] ?? $ticket['priority']) ?>
+    </span>
+</td>
+
                     <?php // Formater databasens tidspunkt som dag.måned.år. ?>
                     <td><?= htmlspecialchars((new DateTimeImmutable($ticket['created_at']))->format('d.m.Y'), ENT_QUOTES, 'UTF-8') ?></td>
                     <td>

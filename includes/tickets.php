@@ -32,18 +32,27 @@ function hentMineTickets(PDO $pdo): array
 
 // Hent én sak til adminsiden med en parameterisert spørring.
 // Returnerer saken som et array, eller null hvis saksnummeret ikke finnes.
+
 function hentTicket(PDO $pdo, int $ticketId): ?array
 {
     requireRoles(['admin']);
+
     $statement = $pdo->prepare(
-        'SELECT t.ticket_id, t.title, t.created_at, t.status, t.category, t.priority,
-                t.description
+        'SELECT t.ticket_id, t.title, t.created_at,
+                t.status, t.category, t.priority,
+                t.description, t.user_id,
+                u.first_name, u.last_name,
+                u.email, u.phone
          FROM tickets AS t
+         LEFT JOIN users AS u ON u.user_id = t.user_id
          WHERE t.ticket_id = :ticket_id'
     );
+
     $statement->execute(['ticket_id' => $ticketId]);
+
     return $statement->fetch() ?: null;
 }
+
 
 // Grupper vedlegg per sak uten å duplisere sakene i sakslisten.
 function hentTicketVedlegg(PDO $pdo, ?int $ticketId = null): array

@@ -3,6 +3,8 @@ require_once __DIR__ . '/../../config/auth.php';
 requireRoles(['admin']);
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/tickets.php';
+require_once __DIR__ . '/../../includes/ticketLabels.php';
+require_once __DIR__ . '/../../config/helpers.php';
 
 $ticket = null;
 $loadError = '';
@@ -13,9 +15,7 @@ $selectedPriority = '';
 $ticketId = filter_input(INPUT_GET, 'saksnummer', FILTER_VALIDATE_INT, [
     'options' => ['min_range' => 1],
 ]);
-$statusLabels = ['open' => 'Mottatt', 'in_progress' => 'Under behandling', 'closed' => 'Fullført'];
-$statusClasses = ['open' => 'status-apen', 'in_progress' => 'status-behandles', 'closed' => 'status-lost'];
-$priorityLabels = ['low' => 'Lav', 'medium' => 'Normal', 'high' => 'Høy'];
+
 
 if (!$ticketId) {
     http_response_code(400);
@@ -84,10 +84,22 @@ if (!$ticketId) {
         <section class="mine-saker">
             <div class="saker-header">
                 <h1>Behandle sak<?= $ticket ? ' #' . (int) $ticket['ticket_id'] : '' ?></h1>
-                <div class ="sak-knapper">
-                    <a href="behandleSaker.php" class="button details-link">Tilbake til sakene</a>
-                   
-                </div>
+                
+<div class="sak-knapper">
+
+    <a href="behandleSaker.php" class="button details-link">
+        Tilbake til sakene
+    </a>
+
+    <?php if ($ticket && $loadError === ''): ?>
+        <a href="../chat.php?saksnummer=<?= (int) $ticketId ?>"
+           class="button details-link">
+            Meldinger
+        </a>
+    <?php endif; ?>
+
+</div>
+
             </div>
             <div class="sak-card">
                 <?php if (isset($_SESSION['ticket_message'])): ?>
@@ -101,6 +113,25 @@ if (!$ticketId) {
                     <p role="alert"><?= htmlspecialchars($loadError, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                 <?php else: ?>
                     <h2><?= htmlspecialchars($ticket['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
+
+<div class="kunde-info">
+    <h3>Kundeinformasjon</h3>
+
+    <dl class="sak-details">
+        <dt>Navn</dt>
+        <dd><?= e(trim(($ticket['first_name'] ?? '') . ' ' . ($ticket['last_name'] ?? '')) ?: 'Ikke oppgitt') ?></dd>
+
+        <dt>Kundenummer</dt>
+        <dd>#<?= (int) $ticket['user_id'] ?></dd>
+
+        <dt>E-post</dt>
+        <dd><?= e($ticket['email'] ?? 'Ikke oppgitt') ?></dd>
+
+        <dt>Telefon</dt>
+        <dd><?= e(($ticket['phone'] ?? '') ?: 'Ikke oppgitt') ?></dd>
+    </dl>
+</div>
+
                     <dl class="sak-details">
                         <dt>Sendt inn</dt>
                         <dd><?= htmlspecialchars((new DateTimeImmutable($ticket['created_at']))->format('d.m.Y H:i'), ENT_QUOTES, 'UTF-8') ?></dd>

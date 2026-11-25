@@ -10,3 +10,9 @@
 # Private lokale testkontoer
 /config/test-accounts.php
 /config/opprettTestBruker.php
+
+# Composer dependencies
+/vendor/
+
+# Lokal e-postkonfigurasjon
+/config/mail.local.php
