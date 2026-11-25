@@ -1,4 +1,7 @@
-
+<?php
+require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../config/helpers.php';
+?>
 <div class="nav-logout">
     <button
         type="button"
