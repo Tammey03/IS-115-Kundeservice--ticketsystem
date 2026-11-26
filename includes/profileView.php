@@ -116,58 +116,44 @@
     </form>
 </div>
 
-<div id="password-details"
-     <?= $activeForm === 'password' && $errors ? 'hidden' : '' ?>>
+                <details id="password-details" <?= $activeForm === 'password' && $errors ? 'open' : '' ?>>
+                    <summary class="button">Endre passord</summary>
 
-    <button type="button" class="button" id="edit-password">
-        Endre passord
-    </button>
-</div>
+                    <form method="post" class="profile-edit-form">
+                        <input type="hidden" name="csrf_token"
+                               value="<?= e(csrfToken()) ?>">
+                        <input type="hidden" name="action" value="password">
 
-<div id="password-edit"
-     <?= $activeForm === 'password' && $errors ? '' : 'hidden' ?>>
+                        <label for="current_password">
+                            Nåværende passord
+                        </label>
+                        <input type="password"
+                               id="current_password"
+                               name="current_password"
+                               autocomplete="current-password"
+                               required>
 
+                        <label for="new_password">Nytt passord</label>
+                        <input type="password"
+                               id="new_password"
+                               name="new_password"
+                               autocomplete="new-password"
+                               minlength="8" required>
 
-                <h3>Endre passord</h3>
+                        <label for="confirm_password">
+                            Bekreft nytt passord
+                        </label>
+                        <input type="password"
+                               id="confirm_password"
+                               name="confirm_password"
+                               autocomplete="new-password"
+                               minlength="8" required>
 
-                <form method="post" class="profile-edit-form">
-                    <input type="hidden" name="csrf_token"
-                           value="<?= e(csrfToken()) ?>">
-                    <input type="hidden" name="action" value="password">
-
-                    <label for="current_password">
-                        Nåværende passord
-                    </label>
-                    <input type="password"
-                           id="current_password"
-                           name="current_password"
-                           autocomplete="current-password"
-                           required>
-
-                    <label for="new_password">Nytt passord</label>
-                    <input type="password"
-                           id="new_password"
-                           name="new_password"
-                           autocomplete="new-password"
-                           minlength="8" required>
-
-                    <label for="confirm_password">
-                        Bekreft nytt passord
-                    </label>
-                    <input type="password"
-                           id="confirm_password"
-                           name="confirm_password"
-                           autocomplete="new-password"
-                           minlength="8" required>
-
-                    <button type="submit" class="button">
-                        Endre passord
-                    </button>
-                    <button type="button" class="button" id="cancel-password">
-    Avbryt
-</button>
-                </form>
-                </div>
+                        <button type="submit" class="button">
+                            Lagre nytt passord
+                        </button>
+                    </form>
+                </details>
 
             </div>
         </div>

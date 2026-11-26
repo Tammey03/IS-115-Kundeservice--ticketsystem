@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/notifications.php';
 
 /* =========================
    START GENERELL SAMTALE
@@ -67,9 +68,6 @@ function opprettSamtale(PDO $pdo, string $message): int
         ]);
 
         $pdo->commit();
-
-        return $conversationId;
-
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
@@ -78,6 +76,9 @@ function opprettSamtale(PDO $pdo, string $message): int
         throw $e;
     }
 
+    notifyChatRecipient($pdo, 5, (int) $_SESSION['user_id'], "samtale #$conversationId");
+
+    return $conversationId;
 }
 
 /* =========================
@@ -148,7 +149,8 @@ function lagreGenerellMelding(
     int $conversationId,
     string $message
 ): void {
-    if (hentGenerellSamtale($pdo, $conversationId) === null) {
+    $conversation = hentGenerellSamtale($pdo, $conversationId);
+    if ($conversation === null) {
         throw new RuntimeException('Ingen tilgang til samtalen.');
     }
 
@@ -171,6 +173,12 @@ function lagreGenerellMelding(
         'user_id' => $_SESSION['user_id'],
         'message' => $message,
     ]);
+
+    $recipientId = $_SESSION['role'] === 'admin'
+        ? $conversation['user_id']
+        : $conversation['assigned_to'];
+
+    notifyChatRecipient($pdo, (int) $recipientId, (int) $_SESSION['user_id'], "samtale #$conversationId");
 }
 
 /* =========================

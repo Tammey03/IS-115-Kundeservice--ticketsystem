@@ -11,7 +11,7 @@ Prosjektet bør innhold:
 - status på saker (åpen, lukket osv.)
 - kommentar- eller meldingssystem
 - filopplasting
-- databaseintefrasjon
+- databaseintegrasjon
 - ev. e-postvarsling (enkelt nivå)
 
 Utover detter er opp til dere å deifnere systemests funkasjonalitet og omfang 
@@ -31,3 +31,16 @@ Det forventes at dere gjør egen tekninske vurdering og begrunne valgene dere ta
 ## Flere vedlegg per sak
 
 Kjør `config/migrations/001_multiple_ticket_attachments.sql` én gang i en eksisterende database før du tar i bruk filopplasting med flere vedlegg. Migreringen beholder filene som allerede er lagret.
+
+## E-postvarsling
+
+Nye meldinger i saksprat og generell chat varsles på e-post til den andre deltakeren. Kunden får varsel når saksbehandleren svarer, og tildelt saksbehandler får varsel når kunden skriver. Ved passordendring fra «Min profil» får kontoeieren et varsel.
+
+1. Kjør `composer install` i prosjektmappen for å installere PHPMailer.
+2. Kopier `config/mail.example.php` til `config/mail.local.php`, som Git ignorerer.
+3. Installer [Mailpit](https://mailpit.axllent.org/docs/install/) og start det med `mailpit --listen 127.0.0.1:8025 --smtp 127.0.0.1:1025`.
+4. Åpne [Mailpit-innboksen](http://127.0.0.1:8025). Bruk testadresser med `@example.com`. Svar på en chatmelding som saksbehandler eller endre passordet på en testkonto for å se varslene.
+
+Mailpit tar imot e-posten lokalt. Demoen bruker ingen innlogging hos en e-postleverandør.
+
+Varsler sendes etter at meldingen eller passordendringen er lagret. E-posten inneholder kun et varsel. Ved SMTP-feil blir endringen stående, og feilen logges i PHPs feillogg. Uten lokal e-postkonfigurasjon er varsling deaktivert.

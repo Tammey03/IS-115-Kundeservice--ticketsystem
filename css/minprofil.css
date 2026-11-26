@@ -250,23 +250,15 @@
     background-color: #d1d5db;
 }
 
-/* Vis og skjul passordskjema */
-#password-details[hidden],
-#password-edit[hidden] {
-    display: none;
-}
-
 #password-details {
     margin-top: 24px;
 }
 
-#cancel-password {
-    background-color: #e5e7eb;
-    color: #1f2937;
-    border: 1px solid #cbd5e1;
-    margin-left: 10px;
+#password-details summary {
+    display: inline-block;
+    cursor: pointer;
 }
 
-#cancel-password:hover {
-    background-color: #d1d5db;
+#password-details summary::-webkit-details-marker {
+    display: none;
 }

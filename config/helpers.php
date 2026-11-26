@@ -1,4 +1,3 @@
-
 <?php
 
 // Gjør tekst trygg å skrive ut i HTML

@@ -20,31 +20,3 @@ document.addEventListener("DOMContentLoaded", () => {
         details.hidden = false;
     });
 });
-
-document.addEventListener("DOMContentLoaded", () => {
-    const passwordDetails = document.getElementById("password-details");
-    const passwordEdit = document.getElementById("password-edit");
-    const editPassword = document.getElementById("edit-password");
-    const cancelPassword = document.getElementById("cancel-password");
-
-    if (!passwordDetails || !passwordEdit ||
-        !editPassword || !cancelPassword) {
-        return;
-    }
-
-    editPassword.addEventListener("click", () => {
-        passwordDetails.hidden = true;
-        passwordEdit.hidden = false;
-
-        document.getElementById("current_password")?.focus();
-    });
-
-    cancelPassword.addEventListener("click", () => {
-        passwordEdit.querySelector("form")?.reset();
-
-        passwordEdit.hidden = true;
-        passwordDetails.hidden = false;
-
-        editPassword.focus();
-    });
-});

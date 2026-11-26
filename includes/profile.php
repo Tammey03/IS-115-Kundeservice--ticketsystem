@@ -1,10 +1,10 @@
-
 <?php
 require_once __DIR__ . '/../config/auth.php';
 requireRoles(['user', 'admin']);
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/helpers.php';
+require_once __DIR__ . '/notifications.php';
 
 $userId = $_SESSION['user_id'];
 $errors = [];
@@ -134,6 +134,13 @@ exit;
                         'password_hash' => $passwordHash,
                         'user_id' => $userId
                     ]);
+
+                    sendEmailNotification(
+                        (string) $user['email'],
+                        'Passordet ditt er endret',
+                        'Passordet til kundeservicekontoen din er endret. '
+                        . 'Kontakt kundeservice hvis du ikke gjorde denne endringen.'
+                    );
 
                     $_SESSION['profile_success'] = 'Passordet ditt er endret.';
 

@@ -7,7 +7,7 @@ function hentSakForSamtale(PDO $pdo, int $ticketId): ?array
 {
     requireRoles(['user', 'admin']);
 
-    $sql = 'SELECT ticket_id, title, description
+    $sql = 'SELECT ticket_id, title, description, user_id, assigned_to
             FROM tickets
             WHERE ticket_id = :ticket_id';
 
@@ -76,7 +76,8 @@ function hentSamtaleSaker(PDO $pdo): array
 function lagreMelding(PDO $pdo, int $ticketId, string $message): void
 {
     // Kontroller tilgang også ved sending.
-    if (hentSakForSamtale($pdo, $ticketId) === null) {
+    $ticket = hentSakForSamtale($pdo, $ticketId);
+    if ($ticket === null) {
         throw new RuntimeException('Ingen tilgang til samtalen.');
     }
 
@@ -98,5 +99,9 @@ function lagreMelding(PDO $pdo, int $ticketId, string $message): void
         'user_id' => $_SESSION['user_id'],
         'message' => $message,
     ]);
+
+    $recipientId = $_SESSION['role'] === 'admin' ? $ticket['user_id'] : $ticket['assigned_to'];
+
+    notifyChatRecipient($pdo, (int) $recipientId, (int) $_SESSION['user_id'], "sak #$ticketId");
 }
 ?>
