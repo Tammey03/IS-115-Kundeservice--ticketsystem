@@ -12,10 +12,10 @@ Denne guiden gjelder lokal kjøring i XAMPP, også for den som mottar prosjektet
 ## 2. Sett opp databasen
 
 1. Åpne [phpMyAdmin](http://localhost/phpmyadmin/) og opprett en tom database, for eksempel `kundeservice_db`, med tegnsett `utf8mb4`.
-2. Velg databasen i phpMyAdmin, åpne **Importer**, velg SQL-eksporten som følger med leveransen, og start importen. En full eksport inneholder både tabellene og dataene fra gruppas database. Hopp over `config/schema.sql` når du bruker en full eksport.
+2. Velg databasen i phpMyAdmin, åpne **Importer**, velg `kundeservice_db-6.sql` fra leveransen, og start importen. Eksporten inneholder både tabellene og dataene fra gruppas database.
 3. Kopier `config/database.example.php` til `config/database.php`. Sjekk at databasenavn, vert, port, brukernavn og passord stemmer med ditt lokale oppsett. Standardverdiene er `localhost`, `kundeservice_db`, port 3306 og `root` med tomt passord.
 
-Hvis du vil starte med tomme tabeller, kan du importere [config/schema.sql](config/schema.sql) i stedet for gruppeeksporten. Skjemaet oppretter seks tomme tabeller og inkluderer begge migreringene.
+Eksporten inneholder allerede feltene fra begge migreringene, så ved import av `kundeservice_db-6.sql` kan du gå videre til innlogging.
 
 **Ved import av en eldre database**
 
@@ -26,7 +26,7 @@ Hvis du vil starte med tomme tabeller, kan du importere [config/schema.sql](conf
 
 Åpne [innloggingssiden](http://localhost/IS-115-Kundeservice--ticketsystem/pages/login.php). Tilpass mappenavnet i URL-en hvis du har pakket ut prosjektet under et annet navn.
 
-Bruk testkontoene som følger med gruppas databaseeksport. Gruppen legger ved innlogging for rollene sensor skal teste. Generell chat krever at bruker-ID 5 tilhører en saksbehandler. Nye kontoer opprettet via **Opprett bruker** får rollen kunde.
+Bruk testkontoene i `TESTKONTOER-LEVERANSE.md`, som følger med ZIP-en. Generell chat krever at bruker-ID 5 tilhører en saksbehandler. Nye kontoer opprettet via **Opprett bruker** får rollen kunde.
 
 ## 4. Start lokal e-post og test
 
@@ -55,8 +55,9 @@ For passordlenker brukes `http://localhost` med XAMPPs standardport. Ved annen a
 - **Generell chat har fast mottaker.** Uten en aktiv admin med bruker-ID 5 stopper opprettelsen av en ny generell samtale. Saksprat bruker saksbehandleren som er tildelt saken.
 - **Superadmin er delvis implementert.** Rollen kan logge inn og åpne sin profil. Oversikt, redigering og sletting av brukere står som kommende funksjonalitet.
 - **E-post ved tildeling kan sendes før databasen bekrefter endringen.** `taTicket()` lagrer den automatiske chatmeldingen inne i transaksjonen. Det betyr at e-postvarselet kan være sendt hvis lagringen av tildelingen senere feiler.
-- **Leveransen trenger et grunnskjema.** Migreringene i `config/migrations/` endrer eksisterende tabeller. Importer [config/schema.sql](config/schema.sql) for en ny database.
 
 ## Levering som ZIP
 
-Ta med kildekoden, begge README-filene, `composer.json`, `composer.lock`, migreringene, tabellskjemaet og eksempelfilene i `config/`. Legg også ved gruppas SQL-eksport og innloggingsopplysningene til testkontoene. Utelat `.git/`, `.DS_Store`, `config/database.php`, `config/mail.local.php`, `config/test-accounts.php` og `vendor/`. For en ZIP som skal kunne kjøres uten Composer, må den installerte `vendor/`-mappen følge med. Eventuelle SQL-eksporter med testdata bør bare inneholde oppdiktede kontoer, saker og meldinger.
+Ta med kildekoden, begge README-filene, `composer.json`, `composer.lock`, migreringene og eksempelfilene i `config/`. Legg også ved `kundeservice_db-6.sql` og `TESTKONTOER-LEVERANSE.md`. Begge filene ligger lokalt i prosjektmappen og ignoreres av Git, så ta dem med når du lager ZIP-en. Utelat `.git/`, `.DS_Store`, `config/database.php`, `config/mail.local.php`, `config/test-accounts.php` og `vendor/`. For en ZIP som skal kunne kjøres uten Composer, må den installerte `vendor/`-mappen følge med. Eventuelle SQL-eksporter med testdata bør bare inneholde oppdiktede kontoer, saker og meldinger.
+
+Testkontorer ligge i TESTKONTOR-LEVERANDE.md filen. 

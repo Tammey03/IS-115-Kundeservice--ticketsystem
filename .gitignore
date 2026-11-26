@@ -16,3 +16,7 @@
 
 # Lokal e-postkonfigurasjon
 /config/mail.local.php
+
+# Lokal databaseeksport til ZIP-leveransen
+/kundeservice_db-6.sql
+/TESTKONTOER-LEVERANSE.md
