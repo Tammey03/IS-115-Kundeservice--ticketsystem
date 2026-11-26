@@ -1,22 +1,35 @@
-
 document.addEventListener("DOMContentLoaded", () => {
-    const details = document.getElementById("profile-details");
-    const editForm = document.getElementById("profile-edit");
-    const editButton = document.getElementById("edit-profile");
-    const cancelButton = document.getElementById("cancel-profile");
+    function setupEditor(section) {
+        const details = document.getElementById(section + "-details");
+        const editForm = document.getElementById(section + "-edit");
+        const editButton = document.getElementById("edit-" + section);
+        const cancelButton = document.getElementById("cancel-" + section);
+        const form = editForm?.querySelector("form");
 
-    if (!details || !editForm || !editButton || !cancelButton) {
-        console.error("Fant ikke alle elementene for profilredigering.");
-        return;
+        if (!details || !form || !editButton || !cancelButton) {
+            return;
+        }
+
+        editButton.addEventListener("click", (event) => {
+            event.preventDefault();
+            details.hidden = true;
+            editForm.hidden = false;
+            form.querySelector("input:not([type='hidden'])")?.focus();
+        });
+
+        cancelButton.addEventListener("click", (event) => {
+            if (new URLSearchParams(window.location.search).get("edit") === section) {
+                return;
+            }
+
+            event.preventDefault();
+            form.reset();
+            editForm.hidden = true;
+            details.hidden = false;
+            editButton.focus();
+        });
     }
 
-    editButton.addEventListener("click", () => {
-        details.hidden = true;
-        editForm.hidden = false;
-    });
-
-    cancelButton.addEventListener("click", () => {
-        editForm.hidden = true;
-        details.hidden = false;
-    });
+    setupEditor("profile");
+    setupEditor("password");
 });

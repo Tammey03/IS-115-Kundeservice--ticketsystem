@@ -35,7 +35,7 @@ require_once __DIR__ . '/../../includes/profile.php';
     </footer>
 
     <script src="../../js/navBar.js"></script>
-    <script src="../../js/minprofil.js" defer></script>
+    <script src="../../js/minprofil.js?v=<?= filemtime(__DIR__ . '/../../js/minprofil.js') ?>" defer></script>
 
 </body>
 

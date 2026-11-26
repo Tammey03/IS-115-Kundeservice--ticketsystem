@@ -84,10 +84,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'user_id' => $userId
                 ]);
 
+                $_SESSION['first_name'] = $firstName;
                 $_SESSION['profile_success'] = 'Profilen din er oppdatert.';
 
-header('Location: ' . $profilePage, true, 303);
-exit;
+                header('Location: ' . $profilePage, true, 303);
+                exit;
             } catch (PDOException $e) {
                 error_log($e->getMessage());
                 $errors[] = 'Kunne ikke lagre profilen. Prøv igjen.';
@@ -157,6 +158,12 @@ exit;
         $errors[] = 'Ukjent handling.';
     }
 }
+
+$editingSection = $_SERVER['REQUEST_METHOD'] === 'POST'
+    ? $activeForm
+    : ($_GET['edit'] ?? '');
+$editingProfile = $editingSection === 'profile';
+$editingPassword = $editingSection === 'password';
 
 $fullName = trim($firstName . ' ' . $lastName);
 

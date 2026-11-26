@@ -48,78 +48,64 @@
                     <span><?= e($user['email']) ?></span>
                 </div>
 
-                
-<div id="profile-details" <?= $activeForm === 'profile' && $errors ? 'hidden' : '' ?>>
+                <div id="profile-details" <?= $editingProfile ? 'hidden' : '' ?>>
+                    <div class="profile-row">
+                        <span class="profile-label">Fornavn</span>
+                        <span><?= e($firstName) ?></span>
+                    </div>
 
-    <div class="profile-row">
-        <span class="profile-label">Fornavn</span>
-        <span><?= e($firstName) ?></span>
-    </div>
+                    <div class="profile-row">
+                        <span class="profile-label">Etternavn</span>
+                        <span><?= e($lastName) ?></span>
+                    </div>
 
-    <div class="profile-row">
-        <span class="profile-label">Etternavn</span>
-        <span><?= e($lastName) ?></span>
-    </div>
+                    <div class="profile-row">
+                        <span class="profile-label">Telefonnummer</span>
+                        <span><?= e($phone ?: 'Ikke oppgitt') ?></span>
+                    </div>
 
-    <div class="profile-row">
-        <span class="profile-label">Telefonnummer</span>
-        <span><?= e($phone ?: 'Ikke oppgitt') ?></span>
-    </div>
+                    <div class="profile-row">
+                        <span class="profile-label">Adresse</span>
+                        <span><?= e($address ?: 'Ikke oppgitt') ?></span>
+                    </div>
 
-    <div class="profile-row">
-        <span class="profile-label">Adresse</span>
-        <span><?= e($address ?: 'Ikke oppgitt') ?></span>
-    </div>
+                    <a href="<?= e($profilePage) ?>?edit=profile" class="button" id="edit-profile">Rediger profil</a>
+                </div>
 
-    <button type="button" class="button" id="edit-profile">
-        Rediger profil
-    </button>
-</div>
+                <div id="profile-edit" <?= $editingProfile ? '' : 'hidden' ?>>
+                    <form method="post" action="<?= e($profilePage) ?>" class="profile-edit-form">
+                        <input type="hidden" name="csrf_token" value="<?= e(csrfToken()) ?>">
+                        <input type="hidden" name="action" value="profile">
 
-<div id="profile-edit" <?= $activeForm === 'profile' && $errors ? '' : 'hidden' ?>>
+                        <label for="first_name">Fornavn</label>
+                        <input type="text" id="first_name" name="first_name"
+                               value="<?= e($firstName) ?>" maxlength="100" required>
 
-    <h3>Rediger profil</h3>
+                        <label for="last_name">Etternavn</label>
+                        <input type="text" id="last_name" name="last_name"
+                               value="<?= e($lastName) ?>" maxlength="100" required>
 
-    <form method="post" class="profile-edit-form">
-        <input type="hidden" name="csrf_token"
-               value="<?= e(csrfToken()) ?>">
-        <input type="hidden" name="action" value="profile">
+                        <label for="phone">Telefonnummer</label>
+                        <input type="tel" id="phone" name="phone"
+                               value="<?= e($phone) ?>" maxlength="20">
 
-        <label for="first_name">Fornavn</label>
-        <input type="text" id="first_name" name="first_name"
-               value="<?= e($firstName) ?>"
-               maxlength="100" required>
+                        <label for="address">Adresse</label>
+                        <input type="text" id="address" name="address"
+                               value="<?= e($address) ?>" maxlength="255">
 
-        <label for="last_name">Etternavn</label>
-        <input type="text" id="last_name" name="last_name"
-               value="<?= e($lastName) ?>"
-               maxlength="100" required>
+                        <div class="profile-actions">
+                            <button type="submit" class="button">Lagre profil</button>
+                            <a href="<?= e($profilePage) ?>" class="button" id="cancel-profile">Avbryt</a>
+                        </div>
+                    </form>
+                </div>
 
-        <label for="phone">Telefonnummer</label>
-        <input type="tel" id="phone" name="phone"
-               value="<?= e($phone) ?>" maxlength="20">
+                <div id="password-details" <?= $editingPassword ? 'hidden' : '' ?>>
+                    <a href="<?= e($profilePage) ?>?edit=password" class="button" id="edit-password">Endre passord</a>
+                </div>
 
-        <label for="address">Adresse</label>
-        <input type="text" id="address" name="address"
-               value="<?= e($address) ?>" maxlength="255">
-
-        <div class="profile-actions">
-            <button type="submit" class="button">
-                Lagre profil
-            </button>
-
-            <button type="button" class="button" id="cancel-profile">
-                Avbryt
-            </button>
-            
-        </div>
-    </form>
-</div>
-
-                <details id="password-details" <?= $activeForm === 'password' && $errors ? 'open' : '' ?>>
-                    <summary class="button">Endre passord</summary>
-
-                    <form method="post" class="profile-edit-form">
+                <div id="password-edit" <?= $editingPassword ? '' : 'hidden' ?>>
+                    <form method="post" action="<?= e($profilePage) ?>" class="profile-edit-form">
                         <input type="hidden" name="csrf_token"
                                value="<?= e(csrfToken()) ?>">
                         <input type="hidden" name="action" value="password">
@@ -149,11 +135,12 @@
                                autocomplete="new-password"
                                minlength="8" required>
 
-                        <button type="submit" class="button">
-                            Lagre nytt passord
-                        </button>
+                        <div class="profile-actions">
+                            <button type="submit" class="button">Lagre nytt passord</button>
+                            <a href="<?= e($profilePage) ?>" class="button" id="cancel-password">Avbryt</a>
+                        </div>
                     </form>
-                </details>
+                </div>
 
             </div>
         </div>
