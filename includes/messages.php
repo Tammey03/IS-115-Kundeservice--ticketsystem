@@ -38,7 +38,7 @@ function hentMeldinger(PDO $pdo, int $ticketId): array
     }
 
     $statement = $pdo->prepare(
-        'SELECT m.user_id, m.message, m.created_at, u.username
+        'SELECT m.message_id, m.user_id, m.message, m.created_at, u.username
          FROM ticket_messages AS m
          JOIN users AS u ON u.user_id = m.user_id
          WHERE m.ticket_id = :ticket_id

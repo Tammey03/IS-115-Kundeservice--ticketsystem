@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/../../config/auth.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/unreadMessages.php';
 requireRoles(['user']);
+
 ?>
 <!DOCTYPE html>
 <html lang="no">
@@ -108,7 +111,14 @@ requireRoles(['user']);
          <!-- Chat -->
   
         <div class="service-card">
-         <h2>Meldinger</h2>
+         <h2>
+    Meldinger
+    <?php if (harUlesteMeldinger($pdo)): ?>
+        <span class="unread-dot"
+              role="img"
+              aria-label="Uleste meldinger"></span>
+    <?php endif; ?>
+</h2>
 
          <p>
              Les og svar på meldinger fra kunder

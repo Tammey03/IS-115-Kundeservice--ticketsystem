@@ -9,6 +9,7 @@ requireRoles(['user', 'admin']);
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/messages.php';
 require_once __DIR__ . '/../includes/conversations.php';
+require_once __DIR__ . '/../includes/unreadMessages.php';
 
 /* =========================
    SAKSNUMMER FRA ADRESSEN
@@ -156,10 +157,32 @@ try {
             }
         }
     }
-    // Hent historikken som skal vises i samtaleområdet.
+   
+    // Hent historikken og marker viste meldinger som lest.
     if ($ticketId) {
-    $meldinger = hentMeldinger($pdo, $ticketId);
+        $meldinger = hentMeldinger($pdo, $ticketId);
+
+        markerMeldingerSomLest(
+            $pdo,
+            'ticket',
+            $ticketId,
+            $meldinger
+        );
     }
+
+    if ($conversationId) {
+        markerMeldingerSomLest(
+            $pdo,
+            'conversation',
+            $conversationId,
+            $meldinger
+        );
+    }
+
+    // Hent saker og samtaler som fortsatt har uleste meldinger.
+    $ulesteSaker = hentUlesteMeldinger($pdo, 'ticket');
+    $ulesteSamtaler = hentUlesteMeldinger($pdo, 'conversation');
+
 
 // Databasefeil logges, mens brukeren får en generell feilmelding.
 } catch (PDOException $e) {
@@ -239,9 +262,15 @@ try {
                         ? 'aria-current="page"'
                         : '' ?>
                 >
-                    <strong>
-                        Samtale #<?= (int) $generell['conversation_id'] ?>
-                    </strong>
+                    
+<strong>
+    Samtale #<?= (int) $generell['conversation_id'] ?>
+
+    <?php if (in_array((int) $generell['conversation_id'], $ulesteSamtaler, true)): ?>
+        <span class="unread-dot" role="img" aria-label="Uleste meldinger"></span>
+    <?php endif; ?>
+</strong>
+
 
                     <?php if ($_SESSION['role'] === 'admin'): ?>
                         <span>
@@ -269,7 +298,15 @@ try {
                 ? 'aria-current="page"'
                 : '' ?>
         >
-            <strong>Sak #<?= (int) $sak['ticket_id'] ?></strong>
+            
+<strong>
+    Sak #<?= (int) $sak['ticket_id'] ?>
+
+   <?php if (in_array((int) $sak['ticket_id'], $ulesteSaker, true)): ?>
+    <span class="unread-dot" role="img" aria-label="Uleste meldinger"></span>
+<?php endif; ?>
+</strong>
+
 
             <span>
                 <?= htmlspecialchars(

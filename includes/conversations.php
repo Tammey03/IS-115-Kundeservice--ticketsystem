@@ -124,7 +124,7 @@ function hentGenerelleMeldinger(
     }
 
     $statement = $pdo->prepare(
-        'SELECT m.user_id, m.message, m.created_at, u.username
+        'SELECT m.message_id, m.user_id, m.message, m.created_at, u.username
          FROM conversation_messages AS m
          JOIN users AS u ON u.user_id = m.user_id
          WHERE m.conversation_id = :conversation_id
