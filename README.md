@@ -44,3 +44,9 @@ Nye meldinger i saksprat og generell chat varsles på e-post til den andre delta
 Mailpit tar imot e-posten lokalt. Demoen bruker ingen innlogging hos en e-postleverandør.
 
 Varsler sendes etter at meldingen eller passordendringen er lagret. E-posten inneholder kun et varsel. Ved SMTP-feil blir endringen stående, og feilen logges i PHPs feillogg. Uten lokal e-postkonfigurasjon er varsling deaktivert.
+
+## Glemt passord
+
+Kjør `config/migrations/002_password_reset.sql` én gang i databasen. Start Mailpit og åpne «Glemt passord?» fra innloggingssiden. Oppgi e-postadressen til en testkonto og åpne lenken i Mailpit. Lenken kan brukes én gang og utløper etter 30 minutter. Det går minst ett minutt mellom utsendinger til samme konto.
+
+Lenken bruker XAMPP-adressen på `http://localhost` som standard. Hvis prosjektet kjøres på en annen adresse eller port, sett miljøvariabelen `PASSWORD_RESET_URL` til den fullstendige URL-en til `pages/glemtPassord.php`.

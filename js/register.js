@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const password = document.getElementById("password");
     const confirmPassword = document.getElementById("confirm_password");
 
-    if (!showPassword || !password || !confirmPassword) {
+    if (!showPassword || !password) {
         return;
     }
 
@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const type = showPassword.checked ? "text" : "password";
 
         password.type = type;
-        confirmPassword.type = type;
+        if (confirmPassword) {
+            confirmPassword.type = type;
+        }
     });
 });

@@ -1,9 +1,10 @@
-
 <?php
 require_once __DIR__ . "/../config/auth.php";
 require_once __DIR__ . "/../config/helpers.php";
 
 $error = "";
+$resetSuccess = $_SESSION['password_reset_success'] ?? '';
+unset($_SESSION['password_reset_success']);
 $email = "";
 
 // Lokale testkontoer brukes kun i utviklingsmiljøet
@@ -112,6 +113,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <head>
     <script src="../js/auth-history.js" defer></script>
+    <script src="../js/register.js?v=<?= filemtime(__DIR__ . '/../js/register.js') ?>" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -130,6 +132,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <p>Logg inn for å følge opp sakene dine.</p>
         </div>
 
+        <?php if ($resetSuccess !== ''): ?>
+          <div class="login-message" role="status"><?= e($resetSuccess) ?></div>
+        <?php endif; ?>
+
         <?php if ($error !== ''): ?>
           <div class="login-message login-message-error" role="alert">
             <?= e($error) ?>
@@ -146,6 +152,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <div class="login-field">
             <label for="password">Passord</label>
             <input type="password" id="password" name="password" autocomplete="current-password" required>
+          </div>
+
+          <div class="password-toggle">
+            <label>
+              <input type="checkbox" id="show-password">
+              Vis passord
+            </label>
           </div>
 
           <a class="forgot-password" href="glemtPassord.php">Glemt passord?</a>
